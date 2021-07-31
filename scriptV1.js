@@ -17,6 +17,8 @@ const start = (ct) => {
 		$("input#seek")[0].max = $("audio#audio_player")[0].duration
 		$("input#seek")[0].value = $("span#seek_show")[0].innerText = Math.floor($("audio#audio_player")[0].currentTime *10) /10
 	}, 10)
+	document.title = `▷ ${$("input#play_data")[0].files[ct].name}`
+	count = ct
 	$("li").css({"border": "none"})
 	$("li")[ct].style.border = "2px #000 solid"
 	// if (ct > 0) $("li")[ct -1].style.border = "none"
@@ -33,6 +35,7 @@ $(() => {
 	// 最初
 	$("input#play_data")[0].onchange = () => {
 		// リセット
+		document.title = "Music Player"
 		$("section#player").css({"display": "none"})
 		$("input#loop")[0].checked = false
 		$("input#speed")[0].value = 1; $("input#speed")[0].oninput()
@@ -42,11 +45,12 @@ $(() => {
 		$("audio#audio_player")[0].currentTime = 0
 		$("audio#audio_player")[0].pause()
 		// リストにまとめる
-		$("ul#play_list")[0].innerHTML = ""
+		$("ol#play_list")[0].innerHTML = ""
 		for (let i=0; i<$("input#play_data")[0].files.length; i++) {
 			li = document.createElement("li")
 			li.innerText = $("input#play_data")[0].files[i].name
-			$("ul#play_list")[0].appendChild(li)
+			li.onclick = () => start(i)
+			$("ol#play_list")[0].appendChild(li)
 		}
 	}
 	$("button#start")[0].onclick = () => {
@@ -63,9 +67,11 @@ $(() => {
 	$("button#pause")[0].onclick = () => {
 		if (paused) {
 			$("audio#audio_player")[0].play()
+			document.title = `▷ ${$("input#play_data")[0].files[count].name}`
 			$("button#pause")[0].innerText = "| |"
 		} else {
 			$("audio#audio_player")[0].pause()
+			document.title = `| | ${$("input#play_data")[0].files[count].name}`
 			$("button#pause")[0].innerText = "▷"
 		}
 	}
