@@ -22,12 +22,12 @@
 					<td>キーボードショートカットを 非表示</td>
 				</tr>
 				<tr>
-					<th>→</th>
-					<td>+5秒</td>
-				</tr>
-				<tr>
 					<th>←</th>
 					<td>-5秒</td>
+				</tr>
+				<tr>
+					<th>→</th>
+					<td>+5秒</td>
 				</tr>
 				<tr>
 					<th>↑</th>
@@ -43,11 +43,15 @@
 				</tr>
 				<tr>
 					<th><</th>
-					<td>+0.25倍</td>
+					<td>-0.25倍</td>
 				</tr>
 				<tr>
 					<th>L</th>
 					<td>ループ / ループ解除</td>
+				</tr>
+				<tr>
+					<th>P / スペース</th>
+					<td>一時停止 / 再開</td>
 				</tr>
 				<tr>
 					<th>D</th>
@@ -58,8 +62,8 @@
 					<td>前の曲</td>
 				</tr>
 				<tr>
-					<th>P / スペース</th>
-					<td>一時停止 / 再開</td>
+					<th>S</th>
+					<td>シャッフル / シャッフル解除</td>
 				</tr>
 				<tr>
 					<th>1..9</th>
@@ -68,7 +72,7 @@
 			</table>
 		</div>
 		<section id="selector">
-			<input type="file" accept=".mp3, .wav, .m4a, .flac" id="play_data" multiple>
+			<input type="file" accept=".mp3, .wav, .m4a" id="play_data" multiple>
 			<button id="start">▷</button>
 		</section>
 		<section id="player">
@@ -78,7 +82,9 @@
 			<button id="back">←</button>
 			<button id="next">→</button>
 			<input type="checkbox" id="loop">
-			<label for="loop">⇆</label>
+			<label for="loop">⥀</label>
+			<input type="checkbox" id="shuffle">
+			<label for="shuffle">⤮</label>
 			<input type="range" max="10" step="0.25" value="1" id="speed"><span id="speed_show">1.0</span>
 			<input type="range" min="0" max="1" step="0.1" value="1" id="volume"><span id="volume_show">1.0</span>
 			<br>
