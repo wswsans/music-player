@@ -77,7 +77,6 @@ $(() => {
 	}
 	// 次の曲
 	$("button#next")[0].onclick = () => {
-		$("audio#audio_player")[0].pause()
 		$("audio#audio_player")[0].currentTime = 0
 		if ($("input#play_data")[0].files.length > 1) {
 			// console.log(count, $("input#play_data")[0].files.length)
@@ -91,7 +90,6 @@ $(() => {
 	}
 	// 前の曲
 	$("button#back")[0].onclick = () => {
-		$("audio#audio_player")[0].pause()
 		$("audio#audio_player")[0].currentTime = 0
 		if ($("input#play_data")[0].files.length > 1) {
 			if (count > 0) {
