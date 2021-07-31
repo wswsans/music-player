@@ -9,7 +9,7 @@ fReader.onloadend = (event) => {
 	// $("audio#audio_player")[0].appendChild(audio_file)
 	$("audio#audio_player")[0].src = event.target.result
 	// $("input#seek")[0].max = Math.floor($("audio#audio_player")[0].duration * 10) / 10
-	$("audio#audio_player")[0].play()
+	if (!paused) $("audio#audio_player")[0].play()
 }
 const start = (ct) => {
 	fReader.readAsDataURL($("input#play_data")[0].files[ct])
