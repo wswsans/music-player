@@ -39,7 +39,7 @@ const start = (ct) => {
 	$("img#album_art")[0].src = ""
 	$("img#album_art")[0].style.padding = "150px";
 	$("span#description")[0].innerText = "Title: \nArtist: \nAlbum: \nYear: \nComment: \nTrack: \nGenre: \n"
-	$("span#lyrics")[0].innerText = "Lyricks: \n"
+	$("span#lyrics")[0].innerText = "Lyrics: \n"
 	setTimeout(() => waiting = false, 200);
 	if (data.type == "audio/wav") return;
 	mediaTag.read($("input#play_data")[0].files[ct], {
@@ -61,7 +61,7 @@ const start = (ct) => {
 												`Comment: ${(res.tags.comment && res.tags.comment.text != "0") ? res.tags.comment.text : ""}\n` +
 												`Track: ${(res.tags.track) ? res.tags.track : ""}\n` +
 												`Genre: ${(res.tags.genre) ? res.tags.genre : ""}\n`;
-			$("span#lyrics")[0].innerText = `Lyrics: ${(res.tags.lyrics) ? res.tags.lyrics : ""}\n`;
+			$("span#lyrics")[0].innerText = `Lyrics: ${(res.tags.lyrics) ? ((res.tags.lyrics.lyrics) ? res.tags.lyrics : res.tags.lyrics) : ""}\n`;
 			console.log("Lyricks:", res.tags.lyrics)
 		},
 		onError: (error) => console.log("Error", error.info)
