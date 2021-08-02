@@ -4,7 +4,8 @@
 		<meta charset="utf-8">
 		<title>Music Player</title>
 		<link rel="stylesheet" href="./style.css">
-		<script type="text/javascript" src="./jquery-3.6.0.min.js"></script>
+		<script type="text/javascript" src="./extension/jquery-3.6.0.min.js"></script>
+		<script type="text/javascript" src="./extension/jsmediatags.min.js"></script>
 		<!-- <script type="text/javascript" src="./online.js"></script> -->
 		<script type="text/javascript" src="./scriptV1.js"></script>
 	</head>
@@ -14,12 +15,16 @@
 			<h3>キーボードショートカット</h3>
 			<table>
 				<tr>
-					<th>/</th>
+					<th>ctrl(cmd) + /</th>
 					<td>キーボードショートカットを 表示 / 非表示</td>
 				</tr>
 				<tr>
 					<th>ESC</th>
 					<td>キーボードショートカットを 非表示</td>
+				</tr>
+				<tr>
+					<th>P / スペース</th>
+					<td>一時停止 / 再開</td>
 				</tr>
 				<tr>
 					<th>←</th>
@@ -38,6 +43,10 @@
 					<td>音量 -10%</td>
 				</tr>
 				<tr>
+					<th>M</th>
+					<td>ミュート / ミュート解除</td>
+				</tr>
+				<tr>
 					<th>></th>
 					<td>+0.25倍</td>
 				</tr>
@@ -50,8 +59,8 @@
 					<td>ループ / ループ解除</td>
 				</tr>
 				<tr>
-					<th>P / スペース</th>
-					<td>一時停止 / 再開</td>
+					<th>S</th>
+					<td>シャッフル / シャッフル解除</td>
 				</tr>
 				<tr>
 					<th>D</th>
@@ -62,12 +71,12 @@
 					<td>前の曲</td>
 				</tr>
 				<tr>
-					<th>S</th>
-					<td>シャッフル / シャッフル解除</td>
+					<th>1..9</th>
+					<td>特定のポイントに移動(再生時間の 70% は <strong>7</strong> )</td>
 				</tr>
 				<tr>
-					<th>1..9</th>
-					<td>特定のポイントに移動(再生時間の 70% までは 7 回進む)</td>
+					<th>Shift + 1..9</th>
+					<td>特定の曲へ移動(曲のリストの7番は <strong>Shift + 7</strong>)</td>
 				</tr>
 			</table>
 		</div>
@@ -89,8 +98,17 @@
 			<input type="range" min="0" max="1" step="0.1" value="1" id="volume"><span id="volume_show">1.0</span>
 			<br>
 			<input type="range" min="0" step="0.1" value="0" id="seek"><span id="seek_show">0.0</span>
-			<br>
-			<ol id="play_list"></ol>
 		</section>
+		<table id="lists">
+			<tr>
+				<td valign="top" id="detail">
+					<img id="album_art"><br>
+					<span id="description">Title: <br>Artist: <br>Album: <br>Year: <br>Comment: <br>Track: <br>Genre: <br>Lyrics: <br></span>
+				</td>
+				<td valign="top">
+					<ol id="play_list"></ol>
+				</td>
+			</tr>
+		</table>
 	</body>
 </html>
