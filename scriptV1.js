@@ -21,7 +21,7 @@ const start = (ct) => {
 	let player = $("audio#audio_player")[0]
 	let data = $("input#play_data")[0].files[ct]
 	// 初期化
-	// $("audio#audio_player")[0].currentTime = 0;
+	// $("audio#audio_player")[0].currentTime = 0
 	// ロード
 	fReader.readAsDataURL(data);
 	// 設定(読み込み完了したらやりたいもの)
@@ -38,7 +38,8 @@ const start = (ct) => {
 	// ファイルデータ
 	$("img#album_art")[0].src = ""
 	$("img#album_art")[0].style.padding = "150px";
-	$("span#description")[0].innerText = "Title: \nArtist: \nAlbum: \nYear: \nComment: \nTrack: \nGenre: \nLyrics: \n"
+	$("span#description")[0].innerText = "Title: \nArtist: \nAlbum: \nYear: \nComment: \nTrack: \nGenre: \n"
+	$("span#lyrics")[0].innerText = "Lyricks: \n"
 	setTimeout(() => waiting = false, 200);
 	if (data.type == "audio/wav") return;
 	mediaTag.read($("input#play_data")[0].files[ct], {
@@ -59,8 +60,9 @@ const start = (ct) => {
 												`Year: ${(res.tags.year) ? res.tags.year : ""}\n` +
 												`Comment: ${(res.tags.comment && res.tags.comment.text != "0") ? res.tags.comment.text : ""}\n` +
 												`Track: ${(res.tags.track) ? res.tags.track : ""}\n` +
-												`Genre: ${(res.tags.genre) ? res.tags.genre : ""}\n` +
-												`Lyrics: ${(res.tags.lyrics) ? res.tags.lyrics : ""}\n`;
+												`Genre: ${(res.tags.genre) ? res.tags.genre : ""}\n`;
+			$("span#lyrics")[0].innerText = `Lyrics: ${(res.tags.lyrics) ? res.tags.lyrics : ""}\n`;
+			console.log("Lyricks:", res.tags.lyrics)
 		},
 		onError: (error) => console.log("Error", error.info)
 	});
@@ -70,21 +72,25 @@ const start = (ct) => {
 $(() => {
 	$("input#speed")[0].min = "0";
 	if (window.navigator.platform.slice(0, 3) == "Win") {$("input#volume")[0].value = 0.5; $("input#volume")[0].oninput()}
-	// 最初;
+	// 最初
 	$("input#play_data")[0].onchange = () => {
-		// リセット;
-		document.title = "Music Player";
-		$("section#player").css({"display": "none"});
-		$("table#lists").css({"display": "none"});
-		$("input#loop")[0].checked = false;
-		$("input#speed")[0].value = 1; $("input#speed")[0].oninput();
-		$("input#volume")[0].value = 1; $("input#volume")[0].oninput();
+		// リセット
 		count = 0;
 		started = false;
 		waiting = false;
+		document.title = "Music Player";
 		$("audio#audio_player")[0].currentTime = 0;
 		$("audio#audio_player")[0].pause();
-		// リストにまとめる;
+		$("input#loop")[0].checked = false;
+		$("input#speed")[0].value = 1; $("input#speed")[0].oninput();
+		$("input#volume")[0].value = 1; $("input#volume")[0].oninput();
+		$("section#player").css({"display": "none"});
+		$("table#lists").css({"display": "none"});
+		$("img#album_art")[0].src = ""
+		$("img#album_art")[0].style.padding = "150px";
+		$("span#description")[0].innerText = "Title: \nArtist: \nAlbum: \nYear: \nComment: \nTrack: \nGenre: \n"
+		$("span#lyrics")[0].innerText = "Lyricks: \n"
+		// リストにまとめる
 		$("ol#play_list")[0].innerHTML = "";
 		let li = null
 		for (let i=0; i<$("input#play_data")[0].files.length; i++) {
@@ -105,7 +111,7 @@ $(() => {
 		$("section#player").css({"display": "block"});
 		$("table#lists").css({"display": "block"});
 	}
-	// 再生, 一時停止;
+	// 再生, 一時停止
 	$("button#pause")[0].onclick = () => {
 		if (paused) {
 			$("audio#audio_player")[0].play();
@@ -117,7 +123,7 @@ $(() => {
 			$("button#pause")[0].innerText = "▷";
 		}
 	}
-	// 次の曲;
+	// 次の曲
 	$("button#next")[0].onclick = () => {
 		if (waiting) return;
 		if ($("input#play_data")[0].files.length > 1) {
@@ -130,7 +136,7 @@ $(() => {
 		}
 		start(count);
 	}
-	// 前の曲;
+	// 前の曲
 	$("button#back")[0].onclick = () => {
 		if (waiting) return;
 		if ($("input#play_data")[0].files.length > 1) {
@@ -142,17 +148,17 @@ $(() => {
 		}
 		start(count);
 	}
-	// ループ;
+	// ループ
 	$("input#loop")[0].onchange = () => $("audio#audio_player")[0].loop = $("input#loop")[0].checked;
-	// 速度;
+	// 速度
 	$("input#speed")[0].oninput = () => $("span#speed_show")[0].innerText =  $("audio#audio_player")[0].playbackRate = $("audio#audio_player")[0].defaultPlaybackRate = $("input#speed")[0].value;
 	// $("input#speed")[0].onchange = () => { $("audio#audio_player")[0].playbackRate = $("audio#audio_player")[0].defaultPlaybackRate = $("input#speed")[0].value }
-	// 音量;
+	// 音量
 	$("input#volume")[0].oninput = () => $("span#volume_show")[0].innerText = $("audio#audio_player")[0].volume = ($("input#volume")[0].value + ".0").slice(0, 3);
 	// $("input#volume")[0].onchange = () => { $("audio#audio_player")[0].volume = $("input#volume")[0].value }
-	// シークバー;
+	// シークバー
 	$("input#seek")[0].oninput = () => $("audio#audio_player")[0].currentTime = $("input#seek")[0].value;
-	// 曲終了;
+	// 曲終了
 	$("audio#audio_player")[0].onended = () => {
 		window.clearInterval(seekbar);
 		if (! $("input#loop")[0].checked) {
