@@ -40,7 +40,7 @@ const start = (ct) => {
 	$("img#album_art")[0].style.padding = "150px";
 	$("span#description")[0].innerText = "Title: \nArtist: \nAlbum: \nYear: \nComment: \nTrack: \nGenre: \n"
 	$("span#lyrics")[0].innerText = "Lyrics: \n"
-	setTimeout(() => waiting = false, 200);
+	window.setTimeout(() => waiting = false, 200);
 	if (data.type == "audio/wav") return;
 	mediaTag.read($("input#play_data")[0].files[ct], {
 		onSuccess: function(res) {
@@ -70,9 +70,7 @@ const start = (ct) => {
 
 
 $(() => {
-	$("input#speed")[0].min = "0";
-	if (window.navigator.platform.slice(0, 3) == "Win") {$("input#volume")[0].value = 0.5; $("input#volume")[0].oninput()}
-	// 最初
+	// 定義er
 	$("input#play_data")[0].onchange = () => {
 		// リセット
 		count = 0;
@@ -171,7 +169,7 @@ $(() => {
 	}
 	$("audio#audio_player")[0].onpause = () => (!$("audio#audio_player")[0].ended) ? paused = true : "";
 	$("audio#audio_player")[0].onplay = () => paused = false;
-
+	// 馬鹿みたいに長いショートカット
 	document.onkeydown = function (event) {
 		switch (event.code) {
 			case "Slash":
@@ -283,10 +281,14 @@ $(() => {
 			}
 		}
 	}
+	// 定義し終わったらやるタイプのものたち
+	$("input#speed")[0].min = "0";
+	if (window.navigator.platform.slice(0, 3) == "Win") {$("input#volume")[0].value = 0.5; $("input#volume")[0].oninput()}
+	window.setInterval(() => {(started) ? $("button#pause")[0].focus() : $("button#start")[0].focus()}, 10);
+	// ダイアログ
 	$("div#shadow")[0].onclick = () => $("div#shadow")[0].style.display = $("div#dialog")[0].style.display = "none";
 	$("div#shadow").css({"height": document.documentElement.clientHeight + "px", "width": document.documentElement.clientWidth + "px"});
 	$("div#shadow")[0].style.display = $("div#dialog")[0].style.display = "none";
-	window.setInterval(() => {(started) ? $("button#pause")[0].focus() : $("button#start")[0].focus()}, 10);
 
 });
 $(window).resize(() => {
