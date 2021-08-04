@@ -23,6 +23,10 @@
 					<td>キーボードショートカットを 非表示</td>
 				</tr>
 				<tr>
+					<th>C / スペース(音楽プレイヤーが非表示の時のみ)</th>
+					<td>ファイルを選択</td>
+				</tr>
+				<tr>
 					<th>P / スペース</th>
 					<td>一時停止 / 再開</td>
 				</tr>
@@ -88,14 +92,19 @@
 			<!-- <img id="thumbnail"> -->
 			<audio id="audio_player"></audio>
 			<button id="pause">| |</button>
-			<button id="back">←</button>
-			<button id="next">→</button>
+			<button id="back">«</button>
+			<button id="next">»</button>
+			<button id="time_back">←</button>
+			<button id="time_next">→</button>
 			<input type="checkbox" id="loop">
 			<label for="loop">⥀</label>
 			<input type="checkbox" id="shuffle">
 			<label for="shuffle">⤮</label>
-			<input type="range" max="10" step="0.25" value="1" id="speed"><span id="speed_show">1.0</span>
-			<input type="range" min="0" max="1" step="0.1" value="1" id="volume"><span id="volume_show">1.0</span>
+			<input type="range" max="10" step="0.25" value="1" id="speed">
+			<button id="speed_back">←</button><span id="speed_show">1.0</span><button id="speed_next">→</button>
+			<input type="range" min="0" max="1" step="0.1" value="1" id="volume">
+			<button id="volume_back">←</button><span id="volume_show">1.0</span><button id="volume_next">→</button>
+			<button id="mute">X</button>
 			<br>
 			<input type="range" min="0" step="0.1" value="0" id="seek"><span id="seek_show">0.0</span>
 		</section>

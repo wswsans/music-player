@@ -23,6 +23,7 @@ const start = (ct) => {
 	// 初期化
 	// $("audio#audio_player")[0].currentTime = 0
 	// ロード
+	window.setTimeout(() => waiting = false, 200);
 	fReader.readAsDataURL(data);
 	// 設定(読み込み完了したらやりたいもの)
 	seekbar = window.setInterval(() => {
@@ -32,15 +33,14 @@ const start = (ct) => {
 	}, 10);
 	document.title = `▷ ${data.name}`;
 	count = ct;
-	$("li").css({"border": "none"});
-	$("li")[ct].style.border = "2px #000 solid";
+	$("li").css({"border": "1px dotted #000"});
+	$("li")[ct].style.border = "thick double #000";
 	started = true;
 	// ファイルデータ
 	$("img#album_art")[0].src = ""
 	$("img#album_art")[0].style.padding = "150px";
 	$("span#description")[0].innerText = "Title: \nArtist: \nAlbum: \nYear: \nComment: \nTrack: \nGenre: \n"
 	$("span#lyrics")[0].innerText = "Lyrics: \n"
-	window.setTimeout(() => waiting = false, 200);
 	if (data.type == "audio/wav") return;
 	mediaTag.read($("input#play_data")[0].files[ct], {
 		onSuccess: function(res) {
@@ -104,6 +104,7 @@ $(() => {
 			console.log("Nothing");
 			return;
 		}
+		$("body")[0].click();
 		paused = false;
 		start(0);
 		$("section#player").css({"display": "block"});
@@ -146,13 +147,73 @@ $(() => {
 		}
 		start(count);
 	}
+	// 5秒次
+	$("button#time_next")[0].onclick = () => {
+		if ($("audio#audio_player")[0].duration >= $("audio#audio_player")[0].currentTime + 5){
+			$("audio#audio_player")[0].currentTime += 5;
+		} else {
+			$("audio#audio_player")[0].currentTime = $("audio#audio_player")[0].duration;
+		}
+	}
+	// 5秒前
+	$("button#time_back")[0].onclick = () => {
+		if ($("audio#audio_player")[0].currentTime > 5){
+			$("audio#audio_player")[0].currentTime -= 5;
+		} else {
+			$("audio#audio_player")[0].currentTime = 0;
+		}
+	}
 	// ループ
 	$("input#loop")[0].onchange = () => $("audio#audio_player")[0].loop = $("input#loop")[0].checked;
 	// 速度
 	$("input#speed")[0].oninput = () => $("span#speed_show")[0].innerText =  $("audio#audio_player")[0].playbackRate = $("audio#audio_player")[0].defaultPlaybackRate = $("input#speed")[0].value;
+	$("button#speed_next")[0].onclick = () => {
+		if (parseFloat($("input#speed")[0].value) +0.25 <= 10){
+			$("input#speed")[0].value = parseFloat($("input#speed")[0].value) + 0.25;
+		} else {
+			$("input#speed")[0].value = 10;
+		}
+		$("input#speed")[0].oninput();
+	}
+	$("button#speed_back")[0].onclick = () => {
+		if (parseFloat($("input#speed")[0].value) -0.25 >= $("input#speed")[0].min){
+			$("input#speed")[0].value = parseFloat($("input#speed")[0].value) - 0.25;
+		} else {
+			$("input#speed")[0].value = 0;
+		}
+		$("input#speed")[0].oninput();
+	}
 	// $("input#speed")[0].onchange = () => { $("audio#audio_player")[0].playbackRate = $("audio#audio_player")[0].defaultPlaybackRate = $("input#speed")[0].value }
 	// 音量
 	$("input#volume")[0].oninput = () => $("span#volume_show")[0].innerText = $("audio#audio_player")[0].volume = ($("input#volume")[0].value + ".0").slice(0, 3);
+	$("button#volume_next")[0].onclick = () => {
+		if (parseFloat($("input#volume")[0].value) +0.1 <= 1){
+			$("input#volume")[0].value = parseFloat($("input#volume")[0].value) + 0.1;
+		} else {
+			$("input#volume")[0].value = 1;
+		}
+		$("input#volume")[0].oninput();
+	}
+	$("button#volume_back")[0].onclick = () => {
+		if (parseFloat($("input#volume")[0].value) -0.1 >= 0){
+			$("input#volume")[0].value = parseFloat($("input#volume")[0].value) - 0.1;
+		} else {
+			$("input#volume")[0].value = 0;
+		}
+		$("input#volume")[0].oninput();
+	}
+	$("button#mute")[0].onclick = () => {
+		if ($("input#volume")[0].value == 0){
+			$("input#volume")[0].value = vol;
+			$("input#volume")[0].oninput()
+			$("button#mute")[0].innerText = "X"
+		} else {
+			vol = $("input#volume")[0].value;
+			$("input#volume")[0].value = 0
+			$("input#volume")[0].oninput()
+			$("button#mute")[0].innerText = ")))"
+		}
+	}
 	// $("input#volume")[0].onchange = () => { $("audio#audio_player")[0].volume = $("input#volume")[0].value }
 	// シークバー
 	$("input#seek")[0].oninput = () => $("audio#audio_player")[0].currentTime = $("input#seek")[0].value;
@@ -178,74 +239,44 @@ $(() => {
 			case "Escape":
 				$("div#shadow")[0].style.display = $("div#dialog")[0].style.display = "none";
 				break;
+			case "KeyC":
+				if (event.metaKey || event.ctrlKey || !started) break;
+				$("input#play_data")[0].click();
+				$("input#play_data")[0].onchange();
+			case "Space":
 			case "KeyP":
 				if (event.metaKey || event.ctrlKey || !started) break;
 				$("button#pause")[0].onclick();
 				break;
 			case "ArrowLeft":
 				if (event.metaKey || event.ctrlKey || !started) break;
-				if ($("audio#audio_player")[0].currentTime > 5){
-					$("audio#audio_player")[0].currentTime -= 5;
-				} else {
-					$("audio#audio_player")[0].currentTime = 0;
-				}
+				$("button#time_back")[0].onclick();
 				break;
 			case "ArrowRight":
 				if (event.metaKey || event.ctrlKey || !started) break;
-				if ($("audio#audio_player")[0].duration >= $("audio#audio_player")[0].currentTime + 5){
-					$("audio#audio_player")[0].currentTime += 5;
-				} else {
-					$("audio#audio_player")[0].currentTime = $("audio#audio_player")[0].duration;
-				}
+				$("button#time_next")[0].onclick();
 				break;
 			case "ArrowUp":
 				if (event.metaKey || event.ctrlKey || !started) break;
-				if (parseFloat($("input#volume")[0].value) +0.1 <= 1){
-					$("input#volume")[0].value = parseFloat($("input#volume")[0].value) + 0.1;
-				} else {
-					$("input#volume")[0].value = 1;
-				}
-				$("input#volume")[0].oninput();
+				$("button#volume_next")[0].onclick();
 				break;
 			case "ArrowDown":
 				if (event.metaKey || event.ctrlKey || !started) break;
-				if (parseFloat($("input#volume")[0].value) -0.1 >= 0){
-					$("input#volume")[0].value = parseFloat($("input#volume")[0].value) - 0.1;
-				} else {
-					$("input#volume")[0].value = 0;
-				}
-				$("input#volume")[0].oninput();
+				$("button#volume_back")[0].onclick();
 				break;
 			case "KeyM":
 				if (event.metaKey || event.ctrlKey || !started) break;
-				if ($("input#volume")[0].value == 0){
-					$("input#volume")[0].value = vol;
-					$("input#volume")[0].oninput()
-				} else {
-					vol = $("input#volume")[0].value;
-					$("input#volume")[0].value = 0
-					$("input#volume")[0].oninput()
-				}
+				$("button#mute")[0].onclick();
 				break;
 			case "Period":
 				if (event.metaKey || event.ctrlKey || !started) break;
 				if (!event.shiftKey) break;
-				if (parseFloat($("input#speed")[0].value) +0.25 <= 10){
-					$("input#speed")[0].value = parseFloat($("input#speed")[0].value) + 0.25;
-				} else {
-					$("input#speed")[0].value = 10;
-				}
-				$("input#speed")[0].oninput();
+				$("button#speed_next")[0].onclick();
 				break;
 			case "Comma":
 				if (event.metaKey || event.ctrlKey || !started) break;
 				if (!event.shiftKey) break;
-				if (parseFloat($("input#speed")[0].value) -0.25 >= $("input#speed")[0].min){
-					$("input#speed")[0].value = parseFloat($("input#speed")[0].value) - 0.25;
-				} else {
-					$("input#speed")[0].value = 0;
-				}
-				$("input#speed")[0].oninput();
+				$("button#speed_back")[0].onclick();
 				break;
 			case "KeyL":
 				if (event.metaKey || event.ctrlKey || !started) break;
@@ -283,14 +314,18 @@ $(() => {
 	}
 	// 定義し終わったらやるタイプのものたち
 	$("input#speed")[0].min = "0";
-	if (window.navigator.platform.slice(0, 3) == "Win") {$("input#volume")[0].value = 0.5; $("input#volume")[0].oninput()}
-	window.setInterval(() => {(started) ? $("button#pause")[0].focus() : $("button#start")[0].focus()}, 10);
+	if (window.navigator.platform.slice(0, 3) == "Win") {$("input#volume")[0].value = 0.5; $("input#volume")[0].oninput()};
+	// focus
+	window.setInterval(() => {
+		if ($("input#play_data")[0].value) {
+			(started) ? $("button#start")[0].blur() : $("button#start")[0].focus();
+		} else {
+			$("input#play_data")[0].focus();
+		}
+	}, 10);
+	$.each($.merge($("input").slice(1), $("button").slice(1)), function (index, val) { val.onfocus = () => val.blur(); });
 	// ダイアログ
 	$("div#shadow")[0].onclick = () => $("div#shadow")[0].style.display = $("div#dialog")[0].style.display = "none";
-	$("div#shadow").css({"height": document.documentElement.clientHeight + "px", "width": document.documentElement.clientWidth + "px"});
 	$("div#shadow")[0].style.display = $("div#dialog")[0].style.display = "none";
 
 });
-$(window).resize(() => {
-	$("div#shadow").css({"height": document.documentElement.clientHeight + "px", "width": document.documentElement.clientWidth + "px"});
-})
