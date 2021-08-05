@@ -298,6 +298,7 @@ $(() => {
 	});
 	// 定義し終わったらやるタイプのものたち, data.changeでリセットするならあっちで
 	$("input.speed")[0].min = "0";
+	if (window.innerHeight > window.innerWidth) alert("横画面の方が操作しやすいです")
 	// focus
 	window.setInterval(() => {
 		if ($("input#play_data").val()) {
