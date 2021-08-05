@@ -24,15 +24,6 @@ const start = (ct) => {
 	window.setTimeout(() => waiting = false, 200);
 	fReader.readAsDataURL(data[ct]);
 	// 設定(読み込み完了したらやりたいもの)
-	seekbar = window.setInterval(() => {
-		if (player.duration == NaN) return;
-		$("input.seek").prop({max: player.duration})
-						.val(Math.floor(player.currentTime *10) /10);
-		$("input.seek.show").val(`${$("input.seek").val()}`)
-							.css({width: `${Math.floor(player.duration *10)}`.length *10})
-							.prop({max: Math.floor(player.duration *10) /10});
-		$("span#duration").text(`/ ${Math.floor(player.duration *10) /10}`);
-	}, 10);
 	document.title = `▷ ${data[ct].name.split('.').slice(0, -1).join(".")}`;
 	count = ct;
 	$("li").css({border: "1px dotted #000"});
@@ -95,7 +86,7 @@ $(() => {
 			$("button#start").css({cursor: "pointer"});
 		} else {
 			$("button#start").css({cursor: "not-allowed"});
-		}
+		};
 		// リストにまとめる
 		data = $("input#play_data").prop("files");
 		$("ol#play_list").html("");
@@ -138,24 +129,10 @@ $(() => {
 			case "next":
 				count++
 				break;
-		}
+		};
 		if (count < 0) count = data.length -1;
 		if (data.length -1 < count) count = 0;
 		start(count);
-	});
-	// スキップ時間
-	$("input.time.show").change((e) => $(e.target).val(Math.floor(Math.abs($(e.target).val()) *10) /10) );
-	$("button.time").click((e) => {
-		let code = 1;
-		switch (e.target.className.split(" ")[1]) {
-			case "back":
-				code = -1;
-				break;
-			case "next":
-				code = 1;
-				break;
-		}
-		player.currentTime += code * parseFloat($("input.time.show").val())
 	});
 	// ループ
 	$("input#loop").change((e) => $("audio#audio_player").prop({loop: $(e.target).prop("checked")}) );
@@ -172,7 +149,10 @@ $(() => {
 		$(e.target).text((player.muted) ? ")))" : "X");
 	});
 	// 速度, 音量 共通
-	$("input.show.similar_num").change((e) => $(`input.${e.target.className.split(" ")[0]}.range`).val($(e.target).val()).trigger("input"));
+	$("input.show.similar_num").change((e) => {
+		$(`input.${e.target.className.split(" ")[0]}.range`).val($(e.target).val()).trigger("input")
+		$(e.target).blur();
+	});
 	$("button.similar_btn").click((e) => {
 		let code = 1;
 		let classes = e.target.className.split(" ");
@@ -183,14 +163,42 @@ $(() => {
 			case "next":
 				code = 1;
 				break;
-		}
+		};
 		$(`input.${classes[0]}.range`).val(parseFloat($(`input.${classes[0]}.range`).val()) + code *{volume: 0.1, speed: 0.25}[classes[0]]).trigger("input");
 	});
 	// シークバー
-	$("input.seek").on("input", (e) => player.currentTime = $(e.target).val());
+	$("input.seek.range").on("input", (e) => player.currentTime = $(e.target).val());
+	$("input.seek.show").change((e) => {
+		player.currentTime = $(e.target).val();
+		$(e.target).blur();
+	});
+	window.setInterval(() => {
+		if (!player.duration) return;
+		duration = Math.floor(player.duration *10) /10;
+		$("input.seek.range").prop({max: duration})
+							.val(Math.floor(player.currentTime *10) /10);
+		$("input.seek.show").css({width: `${duration}`.length *10})
+							.prop({max: duration});
+		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
+		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
+	}, 10);
+	// スキップ時間
+	$("input.time.show").change((e) => $(e.target).val(Math.floor(Math.abs($(e.target).val()) *10) /10) );
+	$("button.time").click((e) => {
+		let code = 1;
+		switch (e.target.className.split(" ")[1]) {
+			case "back":
+				code = -1;
+				break;
+			case "next":
+				code = 1;
+				break;
+		};
+		player.currentTime += code * parseFloat($("input.time.show").val());
+		$(e.target).blur();
+	});
 	// 曲終了
 	$(player).on("ended", () => {
-		window.clearInterval(seekbar);
 		if (! $("input#loop").prop("checked")) {
 			if ($("input#shuffle").prop("checked")) {
 				$("li")[ Math.floor(Math.random() * (data.length)) ].click();
@@ -218,9 +226,7 @@ $(() => {
 									.change();
 			case "Space":
 				if (event.metaKey || event.ctrlKey || !started) return;
-				if (event.preventDefault) {
-					event.preventDefault();
-				}
+				if (event.preventDefault) event.preventDefault();
 				event.returnValue = false;
 			case "KeyP":
 				if (event.metaKey || event.ctrlKey || !started) return;
@@ -274,7 +280,7 @@ $(() => {
 				if (event.metaKey || event.ctrlKey || !started) return;
 				$("button.audio.back").click();
 				break;
-		}
+		};
 		if (event.code.slice(0, -1) == "Digit") {
 			if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
 			if (event.shiftKey) {
@@ -298,7 +304,7 @@ $(() => {
 			(started) ? $("button#start").blur() : $("button#start").focus();
 		} else {
 			$("input#play_data").focus();
-		}
+		};
 	}, 10);
 	$.merge($("input.range, input[type=checkbox]"), $("button").slice(1)).focus((e) => e.target.blur());
 	// ダイアログ
