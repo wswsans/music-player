@@ -18,35 +18,33 @@ fReader.onloadend = (event) => {
 const start = (ct) => {
 	if (waiting) return;
 	waiting = true;
-	// 変数設定
-	data = $("input#play_data").prop("files")[ct];
 	// 初期化
 	// player.currentTime = 0
 	// ロード
 	window.setTimeout(() => waiting = false, 200);
-	fReader.readAsDataURL(data);
+	fReader.readAsDataURL(data[ct]);
 	// 設定(読み込み完了したらやりたいもの)
 	seekbar = window.setInterval(() => {
 		if (player.duration == NaN) return;
-		$("input#seek").prop({max: player.duration})
+		$("input.seek").prop({max: player.duration})
 						.val(Math.floor(player.currentTime *10) /10);
-		$("input#seek_show").val(`${$("input#seek").val()}`)
+		$("input.seek.show").val(`${$("input.seek").val()}`)
 							.css({width: `${Math.floor(player.duration *10)}`.length *10})
 							.prop({max: Math.floor(player.duration *10) /10});
-		$("span#seek_duration").text(`/ ${Math.floor(player.duration *10) /10}`);
+		$("span#duration").text(`/ ${Math.floor(player.duration *10) /10}`);
 	}, 10);
-	document.title = `▷ ${data.name}`;
+	document.title = `▷ ${data[ct].name.split('.').slice(0, -1).join(".")}`;
 	count = ct;
 	$("li").css({border: "1px dotted #000"});
 	$("li")[ct].style.border = "thick double #000";
 	started = true;
 	// ファイルデータ
-	$("img#album_art").prop({src: ""});
-	$("img#album_art").css({padding: "150px"});
+	$("img#album_art").css({padding: "150px"})
+						.prop("src", "");
 	$("span#description").html("Title: <br>Artist: <br>Album: <br>Year: <br>Comment: <br>Track: <br>Genre: <br>");
 	$("span#lyrics").html("Lyrics: <br>");
-	if (data.type == "audio/wav") return;
-	mediaTag.read(data, {
+	if (data[ct].type == "audio/wav") return;
+	mediaTag.read(data[ct], {
 		onSuccess: function(res) {
 			let pic = base64String = "";
 			pic = res.tags.picture;
@@ -55,8 +53,8 @@ const start = (ct) => {
 				for (i = 0; i < pic.data.length; i++) {
 					base64String += String.fromCharCode(pic.data[i]);
 				};
-				$("img#album_art").css({padding: "0px"});
-				$("img#album_art").prop({src: `data:${pic.format};base64,${window.btoa(base64String)}`});
+				$("img#album_art").css({padding: "0px"})
+								.prop({src: `data:${pic.format};base64,${window.btoa(base64String)}`});
 			};
 			$("span#description").html(`Title: ${(res.tags.title) ? res.tags.title : ""}<br>` +
 										`Artist: ${(res.tags.artist) ? res.tags.artist : ""}<br>` +
@@ -85,13 +83,12 @@ $(() => {
 		document.title = "Music Player";
 		$("audio#audio_player").prop({currentTime: 0});
 		player.pause();
-		$("input#loop").prop({checked: false});
-		$("input#speed").val(1); $("input#speed").change();
-		$("input#volume").val(1); $("input#volume").change();
-		$("section#player").css({display: "none"});
-		$("table#lists").css({display: "none"});
-		$("img#album_art").prop({src: ""});
-		$("img#album_art").css({padding: "150px"});
+		$("input#loop, input#shuffle").prop({checked: false});
+		$("input.range").val(1).trigger("input");
+		if (window.navigator.platform.slice(0, 3) == "Win") $("input.volume").val(0.5).trigger("input");
+		$("section#player, table#lists").css({display: "none"});
+		$("img#album_art").prop("src", "")
+						.css({padding: "150px"});
 		$("span#description").html("Title: <br>Artist: <br>Album: <br>Year: <br>Comment: <br>Track: <br>Genre: <br>");
 		$("span#lyrics").html("Lyricks: <br>");
 		if ($(e.target).val()) {
@@ -100,10 +97,11 @@ $(() => {
 			$("button#start").css({cursor: "not-allowed"});
 		}
 		// リストにまとめる
+		data = $("input#play_data").prop("files");
 		$("ol#play_list").html("");
-		for (let i=0; i<$("input#play_data").prop("files").length; i++) {
+		for (let i=0; i<data.length; i++) {
 			$("<li>").appendTo("ol#play_list")
-					.text($("input#play_data").prop("files")[i].name.split('.').slice(0, -1).join("."))
+					.text(data[i].name.split('.').slice(0, -1).join("."))
 					.click(() => { if (count != i) start(i) });
 		};
 	});
@@ -122,84 +120,87 @@ $(() => {
 	$("button#pause").click((e) => {
 		if (paused) {
 			player.play();
-			document.title = `▷ ${data.name}`;
+			document.title = `▷ ${data[count].name.split('.').slice(0, -1).join(".")}`;
 			$(e.target).text("| |");
 		} else {
 			player.pause();
-			document.title = `| | ${data.name}`;
+			document.title = `| | ${data[count].name.split('.').slice(0, -1).join(".")}`;
 			$(e.target).text("▷");
 		};
 	});
-	// 次の曲
-	$("button#next").click(() => {
+		// 曲
+	$("button.audio").click((e) => {
 		if (waiting) return;
-		if ($("input#play_data").prop("files").length > 1) {
-			// console.log(count, $("input#play_data").prop("files").length);
-			if ($("input#play_data").prop("files").length > (count + 1)) {
-				count++;
-			} else {
-				count = 0;
-			};
-		};
-		start(count);
-	});
-	// 前の曲
-	$("button#back").click(() => {
-		if (waiting) return;
-		if ($("input#play_data").prop("files").length > 1) {
-			if (count > 0) {
+		switch (e.target.className.split(" ")[1]) {
+			case "back":
 				count--;
-			} else {
-				count = $("input#play_data").prop("files").length - 1;
-			};
-		};
+				break;
+			case "next":
+				count++
+				break;
+		}
+		if (count < 0) count = data.length -1;
+		if (data.length -1 < count) count = 0;
 		start(count);
 	});
-	$("input#skip_time").change((e) => 
-		$(e.target).val(Math.floor($(e.target).val() *10) /10)
-	);
-	// 5秒次
-	$("button#time_next").click(() => player.currentTime += parseFloat($("input#skip_time").val()) );
-	// 5秒前
-	$("button#time_back").click(() => player.currentTime -= parseFloat($("input#skip_time").val()) );
+	// スキップ時間
+	$("input.time.show").change((e) => $(e.target).val(Math.floor(Math.abs($(e.target).val()) *10) /10) );
+	$("button.time").click((e) => {
+		let code = 1;
+		switch (e.target.className.split(" ")[1]) {
+			case "back":
+				code = -1;
+				break;
+			case "next":
+				code = 1;
+				break;
+		}
+		player.currentTime += code * parseFloat($("input.time.show").val())
+	});
 	// ループ
 	$("input#loop").change((e) => $("audio#audio_player").prop({loop: $(e.target).prop("checked")}) );
 	// 速度
-	$("input#speed").on("input", (e) => $("input#speed_show")[0].value =  player.playbackRate = player.defaultPlaybackRate = $(e.target).val());
-	$("button#speed_next").click(() => $("input#speed").val(parseFloat($("input#speed").val()) + 0.25).trigger("input"));
-	$("button#speed_back").click(() => $("input#speed").val(parseFloat($("input#speed").val()) - 0.25).trigger("input"));
-	$("input#speed_show").change((e) => $("input#speed").val($(e.target).val()).trigger("input"));
+	$("input.speed.range").on("input", (e) => $("input.speed.show")[0].value =  player.playbackRate = player.defaultPlaybackRate = $(e.target).val());
 	// 音量
-	$("input#volume").on("input", () => $("input#volume_show")[0].value = player.volume = ($(e.target).val() + ".0").slice(0, 3));
-	$("button#volume_next").click(() => $("input#volume").val(parseFloat($("input#volume").val()) + 0.1).trigger("input"));
-	$("button#volume_back").click(() => $("input#volume").val(parseFloat($("input#volume").val()) - 0.1).trigger("input"));
-	$("input#volume_show").change((e) => $("input#volume").val($(e.target).val()).trigger("input"));
+	$("input.volume.range").on("input", (e) => {
+		$("input.volume.show")[0].value = player.volume = ($(e.target).val() + ".0").slice(0, 3);
+		player.muted = !player.volume;
+	});
 	$("button#mute").click((e) => {
-		if ($("input#volume").val() == 0){
-			$("input#volume").val($("input#volume").prop("vol"));
-			$(e.target).text("X");
-		} else {
-			$("input#volume").prop({vol: $("input#volume").val()})
-							.val(0);
-			$(e.target).text(")))");
-		};
-		$("input#volume").trigger("input");
+		player.muted = !player.muted;
+		$("input.volume").val((player.muted) ? 0 : player.volume)
+		$(e.target).text((player.muted) ? ")))" : "X");
+	});
+	// 速度, 音量 共通
+	$("input.show.similar_num").change((e) => $(`input.${e.target.className.split(" ")[0]}.range`).val($(e.target).val()).trigger("input"));
+	$("button.similar_btn").click((e) => {
+		let code = 1;
+		let classes = e.target.className.split(" ");
+		switch (classes[1]) {
+			case "back":
+				code = -1;
+				break;
+			case "next":
+				code = 1;
+				break;
+		}
+		$(`input.${classes[0]}.range`).val(parseFloat($(`input.${classes[0]}.range`).val()) + code *{volume: 0.1, speed: 0.25}[classes[0]]).trigger("input");
 	});
 	// シークバー
-	$("input#seek").on("input", (e) => player.currentTime = $(e.target).val()).trigger("input");
+	$("input.seek").on("input", (e) => player.currentTime = $(e.target).val());
 	// 曲終了
-	player.onended = () => {
+	$(player).on("ended", () => {
 		window.clearInterval(seekbar);
 		if (! $("input#loop").prop("checked")) {
 			if ($("input#shuffle").prop("checked")) {
-				$("li")[ Math.floor(Math.random() * ($("input#play_data").prop("files").length)) ].click();
+				$("li")[ Math.floor(Math.random() * (data.length)) ].click();
 			} else {
-				$("button#next").click();
+				$("button.audio.next").click();
 			};
 		};
-	};
-	player.onpause = () => (player.ended) ? "" : paused = true;
-	player.onplay = () => paused = false;
+	});
+	$(player).on("pause", () => (player.ended) ? "" : paused = true);
+	$(player).on("play", () => paused = false);
 	// 馬鹿みたいに長いショートカット
 	$("html").on("keydown", (event) => {
 		// 本職
@@ -213,8 +214,8 @@ $(() => {
 				break;
 			case "KeyC":
 				if (event.metaKey || event.ctrlKey || !started) return;
-				$("input#play_data").click();
-				$("input#play_data").change();
+				$("input#play_data").click()
+									.change();
 			case "Space":
 				if (event.metaKey || event.ctrlKey || !started) return;
 				if (event.preventDefault) {
@@ -227,19 +228,19 @@ $(() => {
 				break;
 			case "ArrowLeft":
 				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
-				$("button#time_back").click();
+				$("button.time.back").click();
 				break;
 			case "ArrowRight":
 				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
-				$("button#time_next").click();
+				$("button.time.next").click();
 				break;
 			case "ArrowUp":
 				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
-				$("button#volume_next").click();
+				$("button.volume.next").click();
 				break;
 			case "ArrowDown":
 				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
-				$("button#volume_back").click();
+				$("button.volume.back").click();
 				break;
 			case "KeyM":
 				if (event.metaKey || event.ctrlKey || !started) return;
@@ -248,12 +249,12 @@ $(() => {
 			case "Period":
 				if (event.metaKey || event.ctrlKey || !started) return;
 				if (!event.shiftKey) break;
-				$("button#speed_next").click();
+				$("button.speed.next").click();
 				break;
 			case "Comma":
 				if (event.metaKey || event.ctrlKey || !started) return;
 				if (!event.shiftKey) break;
-				$("button#speed_back").click();
+				$("button.speed.back").click();
 				break;
 			case "KeyL":
 				if (event.metaKey || event.ctrlKey || !started) return;
@@ -267,11 +268,11 @@ $(() => {
 				break;
 			case "KeyD":
 				if (event.metaKey || event.ctrlKey || !started) return;
-				$("button#next").click();
+				$("button.audio.next").click();
 				break;
 			case "KeyA":
 				if (event.metaKey || event.ctrlKey || !started) return;
-				$("button#back").click();
+				$("button.audio.back").click();
 				break;
 		}
 		if (event.code.slice(0, -1) == "Digit") {
@@ -289,9 +290,8 @@ $(() => {
 			};
 		};
 	});
-	// 定義し終わったらやるタイプのものたち
-	$("input#speed")[0].min = "0";
-	if (window.navigator.platform.slice(0, 3) == "Win") {$("input#volume").val(0.5); $("input#volume").change()};
+	// 定義し終わったらやるタイプのものたち, data.changeでリセットするならあっちで
+	$("input.speed")[0].min = "0";
 	// focus
 	window.setInterval(() => {
 		if ($("input#play_data").val()) {
@@ -300,7 +300,7 @@ $(() => {
 			$("input#play_data").focus();
 		}
 	}, 10);
-	$.merge($("input[type=range], input[type=checkbox]"), $("button").slice(1)).focus((e) => e.target.blur());
+	$.merge($("input.range, input[type=checkbox]"), $("button").slice(1)).focus((e) => e.target.blur());
 	// ダイアログ
 	$("div#shadow").click(() => {$("div#shadow").stop().fadeToggle(100); $("div#dialog").stop().fadeToggle(100)});
 });

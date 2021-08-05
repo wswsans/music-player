@@ -75,8 +75,8 @@ ol#play_list li {
 	cursor: pointer;
 }
 /* シークバー  */
-input#seek {
-	width:  410px;
+input.seek.range {
+	width: 410px;
 }
 /* ファイル詳細 */
 img#album_art{
