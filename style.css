@@ -1,11 +1,12 @@
 /* 全体 */
-*:focus {
-	outline: none;
-}
 * {
 	font-size: 10px;
 }
-button, label {
+/* 消す */
+*:focus {
+	outline: none;
+}
+button, label, br {
   -webkit-touch-callout: none; /* iOS Safari */
 	-webkit-user-select: none; /* Safari */
 	 -khtml-user-select: none; /* Konqueror HTML */
@@ -14,10 +15,48 @@ button, label {
 			user-select: none; /* Non-prefixed version, currently
 								  supported by Chrome and Opera */
 }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance:textfield;
+}
+/* カーソル */
+span {
+	cursor: default;
+}
+input[type="checkbox"], button, label {
+	cursor: pointer;
+}
+input[type="range"] {
+	cursor: ew-resize;
+}
+button#start {
+	cursor: not-allowed;
+}
+/* その他 */
+input[type="checkbox"] {
+	margin-right: 0;
+}
+input[type="number"] {
+	text-align: center;
+	background-color: #FFF;
+	border: none;
+	border-bottom: 1px solid #FFF;
+	width: 20px;
+	transform-origin: 0% 50%;
+	transition: 0.2s;
+}
+input[type="number"]:focus {
+	border-bottom: 1px solid #E5E5E5;
+}
 body {
 	margin: 0px;
 	padding: 0px;
 }
+
 /* 最初  */
 section#player {
 	display: none;
@@ -31,18 +70,13 @@ ol#play_list{
 	list-style-position: none;
 }
 ol#play_list li {
+	margin: 2px 0px;
 	padding: 5px;
 	cursor: pointer;
 }
 /* シークバー  */
 input#seek {
 	width:  410px;
-}
-/* キーボードショートカット */
-div#shadow {
-	position: absolute;
-	z-index: 2147483646;
-	background-color: rgba(0, 0, 0, 0.4);
 }
 /* ファイル詳細 */
 img#album_art{
@@ -53,9 +87,19 @@ img#album_art{
 td#detail {
 	width: 330px;
 }
+/* キーボードショートカット */
+div#shadow {
+	display: none;
+	position: fixed;
+	z-index: 2147483646;
+	background-color: rgba(0, 0, 0, 0.4);
+	width: 100%;
+	height: 100%;
+}
 div#dialog{
+	display: none;
 	/* 中央よせ */
-	position: absolute;
+	position: fixed;
 	top: 50%;
 	left: 50%;
 	-webkit-transform: translateY(-50%) translateX(-50%);
