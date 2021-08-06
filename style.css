@@ -56,7 +56,6 @@ input[type="number"]:focus {
 body {
 	margin: 0px;
 	padding: 0px;
-	padding-left: 10px;
 }
 
 /* 最初  */
@@ -70,6 +69,7 @@ table#lists {
 ol#play_list{
 	display: inline-block;
 	list-style-position: none;
+	overflow: auto;
 }
 ol#play_list li {
 	margin: 2px 0px;
