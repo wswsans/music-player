@@ -115,7 +115,7 @@ $(() => {
 			$(e.target).text("▷");
 		};
 	});
-		// 曲
+	// 曲
 	$("button.audio").click((e) => {
 		if (waiting) return;
 		count += {next: 1, back: -1}[e.target.className.split(" ")[1]]
@@ -125,6 +125,7 @@ $(() => {
 	});
 	// ループ
 	$("input#loop").change((e) => $("audio#audio_player").prop({loop: $(e.target).prop("checked")}) );
+	$("button#shuffle_btn").click(() => {if ($("input#shuffle")[0].checked) $("li")[ Math.floor(Math.random() * (data.length)) ].click()});
 	// 速度
 	$("input.speed.range").on("input", (e) => $("input.speed.show")[0].value =  player.playbackRate = player.defaultPlaybackRate = $(e.target).val());
 	// 音量
@@ -258,7 +259,11 @@ $(() => {
 				break;
 			case "KeyS":
 				if (event.metaKey || event.ctrlKey || !started) return;
-				$("input#shuffle").prop( {checked: !$("input#shuffle").prop("checked")} );
+				if (event.shiftKey) {
+					$("button#shuffle_btn").click();
+				} else {
+					$("input#shuffle").prop( {checked: !$("input#shuffle").prop("checked")} );
+				}
 				break;
 			case "KeyD":
 				if (event.metaKey || event.ctrlKey || !started) return;
@@ -280,7 +285,7 @@ $(() => {
 					$("li").slice(-1).click();
 				};
 			} else {
-				$("audio#audio_player").prop({ currentTime: (Math.floor($("audio#audio_player").prop("duration") *10) /10) *(parseInt(event.code.slice(-1))/10) });
+				if (player.currentTime) player.currentTime = (Math.floor($("audio#audio_player").prop("duration") *10) /10) *(parseInt(event.code.slice(-1))/10);
 			};
 		};
 	});
