@@ -71,10 +71,13 @@ $(() => {
 		started = false;
 		waiting = false;
 		document.title = "Music Player";
-		player.currentTime = 0;
-		player.pause();
-		$("input#loop, input#shuffle").prop({checked: false});
+		player.currentTime = 0; player.pause();
+		player.shuffle  = false;
+		player.loop = false;
+		player.preservesPitch = true;
+		$("button.on_off").removeClass("on");
 		$("input.range").val(1).trigger("input");
+		$("input.seek.range").val(0).trigger("input");
 		if (window.navigator.platform.slice(0, 3) == "Win") $("input.volume").val(0.5).trigger("input");
 		$("section#player, table#lists").css("display", "none");
 		if ($(e.target).val()) {
@@ -123,9 +126,21 @@ $(() => {
 		if (data.length -1 < count) count = 0;
 		start(count);
 	});
-	// ループ
-	$("input#loop").change((e) => $("audio#audio_player").prop({loop: $(e.target).prop("checked")}) );
-	$("button#shuffle_btn").click(() => {if ($("input#shuffle")[0].checked) $("li")[ Math.floor(Math.random() * (data.length)) ].click()});
+	$("button.on_off").click((e) => {
+		$(e.target).toggleClass("on");
+		switch (e.target.id) {
+			case "pitch":
+				player.preservesPitch = !player.preservesPitch;
+				break;
+			case "loop":
+				player.loop = !player.loop;
+				break;
+			case "shuffle":
+				player.shuffle = !player.shuffle;
+				break;
+		};
+	});
+	$("button#shuffle_btn").click(() => {if (player.shuffle) $("li")[ Math.floor(Math.random() * (data.length)) ].click()});
 	// 速度
 	$("input.speed.range").on("input", (e) => $("input.speed.show")[0].value =  player.playbackRate = player.defaultPlaybackRate = $(e.target).val());
 	// 音量
@@ -189,8 +204,8 @@ $(() => {
 	});
 	// 曲終了
 	$(player).on("ended", () => {
-		if (! $("input#loop").prop("checked")) {
-			if ($("input#shuffle").prop("checked")) {
+		if (!player.loop) {
+			if (player.shuffle) {
 				$("li")[ Math.floor(Math.random() * (data.length)) ].click();
 			} else {
 				$("button.audio.next").click();
@@ -212,14 +227,11 @@ $(() => {
 				break;
 			case "KeyC":
 				if (event.metaKey || event.ctrlKey) return;
-				$("input#play_data").click()
-									.change();
+				$("input#play_data").click().change();
 			case "Space":
 				if (event.metaKey || event.ctrlKey || !started) return;
 				if (event.preventDefault) event.preventDefault();
 				event.returnValue = false;
-			case "KeyP":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				$("button#pause").click();
 				break;
 			case "ArrowLeft":
@@ -238,6 +250,10 @@ $(() => {
 				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
 				$("button.volume.back").click();
 				break;
+			case "KeyP":
+				if (event.metaKey || event.ctrlKey || !started) return;
+				$("button#pitch").click();
+				break;
 			case "KeyM":
 				if (event.metaKey || event.ctrlKey || !started) return;
 				$("button#mute").click();
@@ -255,15 +271,14 @@ $(() => {
 			case "KeyL":
 				if (event.metaKey || event.ctrlKey || !started) return;
 				if (!started) break;
-				$("input#loop").prop( {checked: !$("input#loop").prop("checked")} );
-				$("input#loop").change();
+				$("button#loop").click();
 				break;
 			case "KeyS":
 				if (event.metaKey || event.ctrlKey || !started) return;
 				if (event.shiftKey) {
 					$("button#shuffle_btn").click();
 				} else {
-					$("input#shuffle").prop( {checked: !$("input#shuffle").prop("checked")} );
+					$("button#shuffle").click();
 				}
 				break;
 			case "KeyD":
