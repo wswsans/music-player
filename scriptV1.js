@@ -149,7 +149,7 @@ $(() => {
 			player.currentTime += code * $("input.time.show").val();
 			$(e.target).blur();
 		} else {
-			$(`input.${classes[0]}.range`).val($(`input.${classes[0]}.range`).val() + code *{volume: 0.1, speed: 0.25}[classes[0]]).trigger("input");
+			$(`input.${classes[0]}.range`).val(parseFloat($(`input.${classes[0]}.range`).val()) + code *{volume: 0.1, speed: 0.25}[classes[0]]).trigger("input");
 		}
 	});
 	// シークバー
