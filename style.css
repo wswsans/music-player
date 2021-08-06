@@ -72,7 +72,8 @@ ol#play_list{
 	overflow: auto;
 }
 ol#play_list li {
-	margin: 2px 0px;
+	margin-top: 2px;
+	margin-right: 15px;
 	padding: 5px;
 	cursor: pointer;
 }
