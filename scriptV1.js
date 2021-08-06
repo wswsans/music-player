@@ -168,7 +168,7 @@ $(() => {
 							.prop({max: duration});
 		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
 		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
-		$("ol#play_list").css("height", (document.documentElement.clientHeight -120) +"px");
+		$("ol#play_list").css("height", (document.documentElement.clientHeight -125) +"px");
 	}, 10);
 	// スキップ時間
 	$("input.time.show").change((e) => $(e.target).val(Math.floor(Math.abs($(e.target).val()) *10) /10) );
