@@ -18,8 +18,6 @@ fReader.onloadend = (event) => {
 const start = (ct) => {
 	if (waiting) return;
 	waiting = true;
-	// 初期化
-	// player.currentTime = 0
 	// ロード
 	window.setTimeout(() => waiting = false, 200);
 	fReader.readAsDataURL(data[ct]);
@@ -28,6 +26,7 @@ const start = (ct) => {
 	count = ct;
 	$("li").css({border: "1px dotted #000"});
 	$("li")[ct].style.border = "thick double #000";
+	$("input#list_num").val(ct +1);
 	started = true;
 	// ファイルデータ
 	$("img#album_art").css({padding: "150px"})
@@ -72,16 +71,12 @@ $(() => {
 		started = false;
 		waiting = false;
 		document.title = "Music Player";
-		$("audio#audio_player").prop({currentTime: 0});
+		player.currentTime = 0;
 		player.pause();
 		$("input#loop, input#shuffle").prop({checked: false});
 		$("input.range").val(1).trigger("input");
 		if (window.navigator.platform.slice(0, 3) == "Win") $("input.volume").val(0.5).trigger("input");
 		$("section#player, table#lists").css({display: "none"});
-		$("img#album_art").prop("src", "")
-						.css({padding: "150px"});
-		$("span#description").html("Title: <br>Artist: <br>Album: <br>Year: <br>Comment: <br>Track: <br>Genre: <br>");
-		$("span#lyrics").html("Lyricks: <br>");
 		if ($(e.target).val()) {
 			$("button#start").css({cursor: "pointer"});
 		} else {
@@ -89,6 +84,7 @@ $(() => {
 		};
 		// リストにまとめる
 		data = $("input#play_data").prop("files");
+		$("input#list_num").prop({max: data.length});
 		$("ol#play_list").html("");
 		for (let i=0; i<data.length; i++) {
 			$("<li>").appendTo("ol#play_list")
@@ -122,14 +118,7 @@ $(() => {
 		// 曲
 	$("button.audio").click((e) => {
 		if (waiting) return;
-		switch (e.target.className.split(" ")[1]) {
-			case "back":
-				count--;
-				break;
-			case "next":
-				count++
-				break;
-		};
+		count += {next: 1, back: -1}[e.target.className.split(" ")[1]]
 		if (count < 0) count = data.length -1;
 		if (data.length -1 < count) count = 0;
 		start(count);
@@ -150,25 +139,22 @@ $(() => {
 	});
 	// 速度, 音量 共通
 	$("input.show.similar_num").change((e) => {
-		$(`input.${e.target.className.split(" ")[0]}.range`).val($(e.target).val()).trigger("input")
+		$(`input.${e.target.className.split(" ")[0]}.range`).val($(e.target).val()).trigger("input");
 		$(e.target).blur();
 	});
 	$("button.similar_btn").click((e) => {
-		let code = 1;
 		let classes = e.target.className.split(" ");
-		switch (classes[1]) {
-			case "back":
-				code = -1;
-				break;
-			case "next":
-				code = 1;
-				break;
-		};
-		$(`input.${classes[0]}.range`).val(parseFloat($(`input.${classes[0]}.range`).val()) + code *{volume: 0.1, speed: 0.25}[classes[0]]).trigger("input");
+		let code = {next: 1, back: -1}[classes[1]];
+		if (classes[0] == "time") {
+			player.currentTime += code * $("input.time.show").val();
+			$(e.target).blur();
+		} else {
+			$(`input.${classes[0]}.range`).val($(`input.${classes[0]}.range`).val() + code *{volume: 0.1, speed: 0.25}[classes[0]]).trigger("input");
+		}
 	});
 	// シークバー
 	$("input.seek.range").on("input", (e) => player.currentTime = $(e.target).val());
-	$("input.seek.show").change((e) => {
+	$("input.seek.show").change((e) => { // 上とはわざと分離させる, classNameをまとめた変数がないから長くなって無駄
 		player.currentTime = $(e.target).val();
 		$(e.target).blur();
 	});
@@ -177,25 +163,27 @@ $(() => {
 		duration = Math.floor(player.duration *10) /10;
 		$("input.seek.range").prop({max: duration})
 							.val(Math.floor(player.currentTime *10) /10);
-		$("input.seek.show").css({width: `${duration}`.length *10})
+		$("input.seek.show").css({width: `${duration *10}`.length *10})
 							.prop({max: duration});
 		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
 		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
 	}, 10);
 	// スキップ時間
 	$("input.time.show").change((e) => $(e.target).val(Math.floor(Math.abs($(e.target).val()) *10) /10) );
-	$("button.time").click((e) => {
-		let code = 1;
-		switch (e.target.className.split(" ")[1]) {
-			case "back":
-				code = -1;
-				break;
-			case "next":
-				code = 1;
-				break;
-		};
-		player.currentTime += code * parseFloat($("input.time.show").val());
-		$(e.target).blur();
+	// 曲リスト
+	$("input#list_num").change((e) => {
+		if ($(e.target).val() < 0) {
+			if (0 < 1 +data.length +parseInt($(e.target).val())) {
+				$(e.target).val(1 +data.length +parseInt($(e.target).val()))
+			} else {
+				$(e.target).val(1)
+			}
+		} else if ($(e.target).val() == 0) {
+			$(e.target).val(1)
+		} else if (data.length <= $(e.target).val()) {
+			$(e.target).val(data.length);
+		}
+		$("li")[$(e.target).val() -1].click();
 	});
 	// 曲終了
 	$(player).on("ended", () => {
