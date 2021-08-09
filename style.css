@@ -140,3 +140,55 @@ div#dialog{
 div#dialog h3 {
 	border-bottom: 1px solid #BFBFBF;
 }
+/* リップシンク */
+.character {
+	display: none;
+	position: relative;
+	margin: 10px;
+	border: 1px solid #000;
+	background: #FFFFFF;
+	height: 300px;
+}
+img.face {
+	position: absolute;
+	height: 300px;
+}
+img.mouse {
+	position: absolute;
+	height: 300px;
+	z-index: 1;
+}
+/* トグルスイッチ */
+switch {
+	cursor: pointer;
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+	width: 40px;
+	height: 24px;
+	max-width: 100%;
+	background: white;
+	border-radius: 100em;
+	box-shadow: inset 0px 1px 1px 1px #d6d6d6, inset 0 -1px 1px 1px #ececec, inset 0 0 0px 2px #f5f5f5;
+}
+switch::before {
+	content: "";
+	display: block;
+	position: absolute;
+	left: 5%;
+	top: 10%;
+	width: 50%;
+	height: 80%;
+	background: white;
+	border-radius: 100%;
+	box-shadow: -2px 2px 2px 0 #bbbbbb, 0px 0px 10px 0 #e4e4e4;
+	transition: all .2s;
+}
+switch.on {
+	background: #00de00;
+	box-shadow: unset;
+}
+switch.on::before {
+	margin-left: 40%;
+	box-shadow: 2px 2px 2px 0 #bbbbbb, 0px 0px 10px 0 #e4e4e4;
+}

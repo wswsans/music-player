@@ -11,6 +11,11 @@ let count = 0;
 let waiting = false;
 let data = null;
 let duration = 0;
+let context = null;
+let source = null;
+let analyser = null;
+let prevSpec = 0;
+let lipSyncInterval = null;
 
 player.preload = "metadata";
 
@@ -25,6 +30,14 @@ const start = (ct) => {
 	if (waiting) return;
 	waiting = true;
 	window.setTimeout(() => waiting = false, 300);
+	if(!context) {
+		webAudioSetup();
+		lipSyncInterval = setInterval(() => {
+      		let spectrums = new Uint8Array(analyser.fftSize)
+      		analyser.getByteFrequencyData(spectrums)
+      		syncLip(spectrums)
+    	}, 100);
+	}
 	// ロード
 	fReader.readAsDataURL(data[ct]);
 	// ロードが終わったらやりたいもの
@@ -50,6 +63,9 @@ const start = (ct) => {
 				};
 				$("img#album_art").css("padding", "0px")
 								.prop({src: `data:${pic.format};base64,${window.btoa(base64String)}`});
+			} else {
+				$("img#album_art").css("padding", "0px")
+								.prop({src: "./image/no_image.png"});
 			};
 			$("span#description").html(`Title: ${(res.tags.title) ? res.tags.title : ""}<br>` +
 										`Artist: ${(res.tags.artist) ? res.tags.artist : ""}<br>` +
@@ -64,6 +80,29 @@ const start = (ct) => {
 		onError: (error) => console.log("Error", error.info)
 	});
 };
+
+// Web Audio APIの初期化
+const webAudioSetup = () => {
+	context = new AudioContext();
+	analyser = context.createAnalyser();
+	analyser.fftSize = 512;
+	analyser.connect(context.destination);
+	source = context.createMediaElementSource(player);
+	source.connect(analyser);
+}
+// スペクトルをもとにリップシンクを行う
+const syncLip = (spectrums) => {
+    const totalSpectrum = spectrums.reduce(function(a, x) { return a + x });
+	const imgPath = './image/';
+	let imgName = 'mouse_close.png';
+    if (totalSpectrum > prevSpec) {
+      imgName = 'mouse_open.png';
+    } else if (prevSpec - totalSpectrum < 250) {
+      imgName = 'mouse_open_light.png';
+    }
+	$("img.mouse").attr('src', imgPath+imgName);
+    prevSpec = totalSpectrum;
+}
 
 
 $(() => {
@@ -80,6 +119,7 @@ $(() => {
 		player.pause();
 		$("button#pause").removeClass("on");
 		$("section#player, table#lists").hide();
+		$("switch").toggleClass("on", false);
 		if ($(e.target).val()) {
 			$("button#start").css("cursor", "pointer").show();
 		} else {
@@ -105,6 +145,8 @@ $(() => {
 		start(0);
 		$("section#player").show();
 		$("table#lists").show();
+		$("img#album_art").show();
+		$("div.character").hide();
 		$(e.target).hide();
 	});
 	$("button#reset").click((e) => {
@@ -336,4 +378,10 @@ $(() => {
 	$("*").not("input[type=number]").focus((e) => $(e.target).blur());
 	// ダイアログ
 	$("div#shadow").click(() => {$("div#shadow").stop().fadeToggle(100); $("div#dialog").stop().fadeToggle(100)});
+	// アルバムアートとリップシンクの切り替え
+	$("switch").click((e)=>{
+		$(e.target).toggleClass("on");
+		$("img#album_art").toggle();
+		$("div.character").toggle();
+	})
 });
