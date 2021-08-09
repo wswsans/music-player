@@ -90,6 +90,10 @@
 					<th>Shift + 1..9</th>
 					<td>特定の曲へ移動(曲のリストの7番は <strong>Shift + 7</strong>)</td>
 				</tr>
+				<tr>
+					<th>R</th>
+					<td>再生時間以外を初期設定に戻す</td>
+				</tr>
 			</table>
 		</div>
 		<section id="selector">
@@ -97,13 +101,13 @@
 			<button id="start">▷</button>
 		</section>
 		<section id="player">
-			<audio id="audio_player"></audio>
-			<button id="pause">| |</button>
+			<button id="reset">↩︎</button>
+			<button id="pause" class="on_off">| |</button>
 			<!-- 曲 -->
 			<button class="audio back">«</button>
 			<button class="audio next">»</button>
 			<!-- ループ -->
-			<button id="loop" class="on_off">⥀</button>
+			<button id="loop" class="on_off">⟲</button>
 			<!-- シャッフル -->
 			<button id="shuffle" class="on_off">⤮</button>
 			<button id="shuffle_btn">⤮→</button>
@@ -118,7 +122,7 @@
 			<button class="volume back similar_btn">←</button>
 			<input class="volume show similar_num" value="1.0" type="number" max="1" min="0" step="0.1">
 			<button class="volume next similar_btn">→</button>
-			<button id="mute">X</button>
+			<button id="mute" class="on_off on">)))</button>
 			<br>
 			<!-- 時間 -->
 			<button class="time back similar_btn">←</button>
@@ -136,7 +140,7 @@
 					<span id="lyrics">Lyrics: <br></span>
 				</td>
 				<td valign="top">
-					<span>Track: </span><input id="list_num" value="1" type="number" min="1" step="1"><br>
+					<span>Track: </span><input id="list_track" value="1" type="number" min="1" step="1"><br>
 					<ol id="play_list"></ol>
 				</td>
 			</tr>
