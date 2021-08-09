@@ -23,11 +23,11 @@
 					<td>キーボードショートカットを 非表示</td>
 				</tr>
 				<tr>
-					<th>C / スペース(音楽プレイヤーが非表示の時のみ)</th>
+					<th>C / スペース(ファル選択時のみ)</th>
 					<td>ファイルを選択</td>
 				</tr>
 				<tr>
-					<th>P / スペース</th>
+					<th>スペース (再生中のみ)</th>
 					<td>一時停止 / 再開</td>
 				</tr>
 				<tr>
@@ -45,6 +45,10 @@
 				<tr>
 					<th>↓</th>
 					<td>音量 -10%</td>
+				</tr>
+				<tr>
+					<th>P</th>
+					<td>速度変更時 ピッチを変える / 変えない</td>
 				</tr>
 				<tr>
 					<th>M</th>
@@ -65,6 +69,10 @@
 				<tr>
 					<th>S</th>
 					<td>シャッフル / シャッフル解除</td>
+				</tr>
+				<tr>
+					<th>Shift + S</th>
+					<td>(シャッフルにチェックがついてる時のみ) シャッフルして次の曲</td>
 				</tr>
 				<tr>
 					<th>D</th>
@@ -95,22 +103,22 @@
 			<button class="audio back">«</button>
 			<button class="audio next">»</button>
 			<!-- ループ -->
-			<input type="checkbox" id="loop">
-			<label for="loop">⥀</label>
+			<button id="loop" class="on_off">⥀</button>
 			<!-- シャッフル -->
-			<input type="checkbox" id="shuffle">
-			<label for="shuffle">⤮</label>
+			<button id="shuffle" class="on_off">⤮</button>
+			<button id="shuffle_btn">⤮→</button>
 			<!-- 速度 -->
 			<input class="speed range" value="1" type="range" max="16" min="0" step="0.25">
 			<button class="speed back similar_btn">←</button>
 			<input class="speed show similar_num" value="1.0" type="number" max="16" min="0" step="0.25">
 			<button class="speed next similar_btn">→</button>
+			<button id="pitch" class="on_off">♩↕︎</button>
 			<!-- 音量 -->
 			<input class="volume range" value="1" type="range" max="1" min="0" step="0.1">
 			<button class="volume back similar_btn">←</button>
 			<input class="volume show similar_num" value="1.0" type="number" max="1" min="0" step="0.1">
 			<button class="volume next similar_btn">→</button>
-			<button id="mute" vol="1.0">X</button>
+			<button id="mute">X</button>
 			<br>
 			<!-- 時間 -->
 			<button class="time back similar_btn">←</button>

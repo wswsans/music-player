@@ -27,36 +27,38 @@ input[type="number"] {
 span {
 	cursor: default;
 }
-input[type="checkbox"], button, label {
-	cursor: pointer;
-}
 input[type="range"] {
 	cursor: ew-resize;
 	margin-left: 10px;
 }
-button#start {
-	cursor: not-allowed;
-}
 /* その他 */
-input[type="checkbox"] {
-	margin-right: 0;
-}
 input[type="number"] {
 	text-align: center;
 	background-color: #FFF;
 	border: none;
-	border-bottom: 1px solid #FFF;
+	border-bottom: 1px solid #E6E6E6;
 	width: 20px;
 	transform-origin: 0% 50%;
 	transition: 0.2s;
 }
 input[type="number"]:focus {
-	border-bottom: 1px solid #E5E5E5;
+	border-bottom: 1px solid #B3B3B3;
 }
 body {
 	margin: 0px;
 	padding: 0px;
-	padding-left: 10px;
+}
+/* 装飾  */
+button {
+	margin: auto 1px;
+	padding: 2px 7px;
+	border: 1px solid #E6E6E6;
+	background-color: #EFEFEF;
+	width: 35px;
+	height: 25px;
+}
+button.on {
+	background-color: #CCCCCC;
 }
 
 /* 最初  */
@@ -66,19 +68,24 @@ section#player {
 table#lists {
 	display: none;
 }
-/* プレイリスト  */
-ol#play_list{
-	display: inline-block;
-	list-style-position: none;
-}
-ol#play_list li {
-	margin: 2px 0px;
-	padding: 5px;
-	cursor: pointer;
+button#start {
+	cursor: not-allowed;
 }
 /* シークバー  */
 input.seek.range {
 	width: 440px;
+}
+/* プレイリスト  */
+ol#play_list{
+	display: inline-block;
+	list-style-position: none;
+	overflow: auto;
+}
+ol#play_list li {
+	margin-top: 2px;
+	margin-right: 15px;
+	padding: 5px;
+	cursor: pointer;
 }
 /* トラック  */
 input#list_num {
@@ -93,6 +100,7 @@ img#album_art{
 td#detail {
 	width: 330px;
 }
+
 /* キーボードショートカット */
 div#shadow {
 	display: none;
