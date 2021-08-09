@@ -9,7 +9,6 @@ let started = false;
 let paused = false; // player.pausedがあるが, button#startで強制的にpausedをはずさないといけないが, 外せないのでオリジナルを作ることにしている
 let count = 0;
 let waiting = false;
-let reset_waiting = false;
 let data = null;
 let duration = 0;
 
@@ -25,7 +24,7 @@ fReader.onloadend = (event) => {
 const start = (ct) => {
 	if (waiting) return;
 	waiting = true;
-	window.setTimeout(() => waiting = false, 200);
+	window.setTimeout(() => waiting = false, 300);
 	// ロード
 	fReader.readAsDataURL(data[ct]);
 	// ロードが終わったらやりたいもの
