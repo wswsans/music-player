@@ -200,6 +200,7 @@ $(() => {
 	});
 	// 速度, 音量 共通
 	$("input.show.similar_num").change((e) => {
+		if ($(e.target).val() == "") $(e.target).val({speed: 1, volume: 1}[e.target.className.split(" ")[0]]);
 		$(`input.${e.target.className.split(" ")[0]}.range`).val($(e.target).val()).trigger("input");
 		$(e.target).blur();
 	});
@@ -218,6 +219,7 @@ $(() => {
 	// シークバー
 	$("input.seek.range").on("input", (e) => player.currentTime = $(e.target).val());
 	$("input.seek.show").change((e) => { // 上とはわざと分離させる, classNameをまとめた変数がないから長くなって無駄
+		if ($(e.target).val() == "") $(e.target).val($("input.range.seek").val());
 		player.currentTime = $(e.target).val();
 		$(e.target).blur();
 	});
@@ -247,6 +249,7 @@ $(() => {
 	});
 	// 曲リスト
 	$("input#list_track").change((e) => {
+		if ($(e.target).val() == "") $(e.target).val(count +1);
 		if ($(e.target).val() < 0) {
 			if (0 < 1 +data.length +parseInt($(e.target).val())) {
 				$(e.target).val(1 +data.length +parseInt($(e.target).val()))
