@@ -135,15 +135,15 @@
 		<table id="lists">
 			<tr>
 				<td valign="top" id="detail">
-					<img id="album_art">
-					<div class="character">
-      			<img class="face" src="./image/face_normal.png">
-      			<img class="mouse" id="mouse" src='./image/mouse_close.png' alt="">
-    			</div>
-					<switch></switch>
+					<div id="switch">
+						<img id="switch_img" class="album_art"> <!-- アルバムアートと顔を行き来する -->
+						<img id="mouse" src='./image/mouse_close.png' alt="">
+					</div>
 					<br>
-					<span id="description">Title: <br>Artist: <br>Album: <br>Year: <br>Comment: <br>Track: <br>Genre: <br></span>
-					<span id="lyrics">Lyrics: <br></span>
+					<div>
+						<span id="description">Title: <br>Artist: <br>Album: <br>Year: <br>Comment: <br>Track: <br>Genre: <br></span>
+						<span id="lyrics">Lyrics: <br></span>
+					</div>
 				</td>
 				<td valign="top">
 					<span>Track: </span><input id="list_track" value="1" type="number" min="1" step="1"><br>
