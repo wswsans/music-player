@@ -292,6 +292,8 @@ $(() => {
 				$("input#play_data").click();
 				break;
 			case "Space":
+				if (event.preventDefault) event.preventDefault();
+				event.returnValue = false;
 				if (event.metaKey || event.ctrlKey) return;
 				if (started) {
 					$("button#pause").click();
