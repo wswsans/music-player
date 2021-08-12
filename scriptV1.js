@@ -303,39 +303,17 @@ $(() => {
 					}
 				}
 				break;
-			case "ArrowLeft":
-				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
-				$("button.time.back").click();
-				break;
-			case "ArrowRight":
-				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
-				$("button.time.next").click();
-				break;
-			case "ArrowUp":
-				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
-				$("button.volume.next").click();
-				break;
-			case "ArrowDown":
-				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
-				$("button.volume.back").click();
-				break;
-			case "KeyP":
+			case "KeyR":
 				if (event.metaKey || event.ctrlKey || !started) return;
-				$("button#pitch").click();
+				$("button#reset").click();
 				break;
-			case "KeyM":
+			case "KeyA":
 				if (event.metaKey || event.ctrlKey || !started) return;
-				$("button#mute").click();
+				$("button.audio.back").click();
 				break;
-			case "Period":
+			case "KeyD":
 				if (event.metaKey || event.ctrlKey || !started) return;
-				if (!event.shiftKey) break;
-				$("button.speed.next").click();
-				break;
-			case "Comma":
-				if (event.metaKey || event.ctrlKey || !started) return;
-				if (!event.shiftKey) break;
-				$("button.speed.back").click();
+				$("button.audio.next").click();
 				break;
 			case "KeyL":
 				if (event.metaKey || event.ctrlKey || !started) return;
@@ -350,17 +328,43 @@ $(() => {
 					$("button#shuffle").click();
 				}
 				break;
-			case "KeyD":
+			case "Comma":
 				if (event.metaKey || event.ctrlKey || !started) return;
-				$("button.audio.next").click();
+				if (!event.shiftKey) break;
+				$("button.speed.back").click();
 				break;
-			case "KeyA":
+			case "Period":
 				if (event.metaKey || event.ctrlKey || !started) return;
-				$("button.audio.back").click();
+				if (!event.shiftKey) break;
+				$("button.speed.next").click();
 				break;
-			case "KeyR":
+			case "KeyP":
 				if (event.metaKey || event.ctrlKey || !started) return;
-				$("button#reset").click();
+				$("button#pitch").click();
+				break;
+			case "ArrowUp":
+				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
+				$("button.volume.next").click();
+				break;
+			case "ArrowDown":
+				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
+				$("button.volume.back").click();
+				break;
+			case "KeyM":
+				if (event.metaKey || event.ctrlKey || !started) return;
+				$("button#mute").click();
+				break;
+			case "ArrowLeft":
+				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
+				$("button.time.back").click();
+				break;
+			case "ArrowRight":
+				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
+				$("button.time.next").click();
+				break;
+			case "KeyI":
+				if (event.metaKey || event.ctrlKey || !started) return;
+				$("div#switch").click();
 				break;
 		};
 		if (event.code.slice(0, -1) == "Digit") {
