@@ -20,6 +20,29 @@ let lipSyncInterval = null;
 
 player.preload = "metadata";
 
+const setPreservesPitch = (onOff) => {
+	console.log("SET PITCH");
+	if(!!document.createElement('audio').preservesPitch) {
+		player.preservesPitch = onOff;
+	} else if(!!document.createElement('audio').mozPreservesPitch) { // Firefox
+		player.mozPreservesPitch = onOff;
+	} else if(!!document.createElement('audio').webkitPreservesPitch) { // Safari
+		player.webkitPreservesPitch = onOff;
+	} else {
+		console.log("preservesPitch is not supported by this browser.");
+	}
+}
+const getPreservesPitch = () => {
+	if(!!document.createElement('audio').preservesPitch) {
+		return player.preservesPitch;
+	} else if(!!document.createElement('audio').mozPreservesPitch) { // Firefox
+		return player.mozPreservesPitch;
+	} else if(!!document.createElement('audio').webkitPreservesPitch) { // Safari
+		return player.webkitPreservesPitch;
+	} else {
+		console.log("preservesPitch is not supported by this browser.");
+	}
+}
 // Web Audio APIの初期化
 const webAudioSetup = () => {
 	context = new AudioContext();
@@ -143,7 +166,7 @@ $(() => {
 		// clickして逆になるので想像と逆の変数設定を
 		player.loop = true;
 		player.shuffle = true;
-		player.preservesPitch = false;
+		setPreservesPitch(false);
 		player.muted = true;
 		$("button.on_off").slice(1).click();
 		$("input.range").slice(0, -1).val(1).trigger("input");
@@ -178,8 +201,8 @@ $(() => {
 				yn = player.shuffle;
 				break;
 			case "pitch":
-				player.preservesPitch = !player.preservesPitch;
-				yn = !player.preservesPitch;
+				setPreservesPitch(!getPreservesPitch());
+				yn = !getPreservesPitch();
 				break;
 			case "mute":
 				player.muted = !player.muted;
