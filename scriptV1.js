@@ -35,7 +35,7 @@ const syncLip = (spectrums) => {
 	let imgName = "mouse_close.png";
 	if (totalSpectrum > prevSpec) {
 		imgName = "mouse_open.png";
-	} else if (prevSpec - totalSpectrum < 250) {
+	} else if (prevSpec - totalSpectrum < 500 && prevSpec - totalSpectrum > 0) {
 		imgName = "mouse_open_light.png";
 	}
 	$("img#mouse").attr("src", `./image/${imgName}`);
