@@ -380,7 +380,7 @@ $(() => {
 					$("li").slice(-1).click();
 				};
 			} else {
-				if (player.currentTime) player.currentTime = duration *(parseInt(event.code.slice(-1))/10);
+				player.currentTime = duration *(parseInt(event.code.slice(-1))/10);
 			};
 		};
 	});
