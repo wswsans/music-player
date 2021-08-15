@@ -64,7 +64,7 @@ const start = (ct) => {
 	count = ct;
 	$("li").css("border", "1px dotted #000");
 	$("li")[ct].style.border = "thick double #000";
-	document.title = `▷ ${data[ct].name.split(".").slice(0, -1).join(".")}`;
+	document.title = `▷ ${$("li")[ct].innerText}`;
 	$("input#list_track").val(ct +1);
 	// ファイルデータ
 	$("img#switch_img").prop("artdata", "./image/no_image.png");
@@ -166,7 +166,7 @@ $(() => {
 			case "pause":
 				if(!started) return;
 				(paused) ? player.play() : player.pause();
-				document.title = `${(paused) ? "▷" : "| |"} ${data[count].name.split(".").slice(0, -1).join(".")}`;
+				document.title = `${(paused) ? "▷" : "| |"} ${$("li")[count].innerText}`;
 				yn = !paused
 				break;
 			case "loop":
