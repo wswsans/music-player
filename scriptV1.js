@@ -20,29 +20,6 @@ let lipSyncInterval = null;
 
 player.preload = "metadata";
 
-const setPreservesPitch = (onOff) => {
-	console.log("SET PITCH");
-	if(!!document.createElement('audio').preservesPitch) {
-		player.preservesPitch = onOff;
-	} else if(!!document.createElement('audio').mozPreservesPitch) { // Firefox
-		player.mozPreservesPitch = onOff;
-	} else if(!!document.createElement('audio').webkitPreservesPitch) { // Safari
-		player.webkitPreservesPitch = onOff;
-	} else {
-		console.log("preservesPitch is not supported by this browser.");
-	}
-}
-const getPreservesPitch = () => {
-	if(!!document.createElement('audio').preservesPitch) {
-		return player.preservesPitch;
-	} else if(!!document.createElement('audio').mozPreservesPitch) { // Firefox
-		return player.mozPreservesPitch;
-	} else if(!!document.createElement('audio').webkitPreservesPitch) { // Safari
-		return player.webkitPreservesPitch;
-	} else {
-		console.log("preservesPitch is not supported by this browser.");
-	}
-}
 // Web Audio APIの初期化
 const webAudioSetup = () => {
 	context = new AudioContext();
@@ -119,6 +96,20 @@ const start = (ct) => {
 		}
 	});
 };
+const PreservesPitch = (onOff) => {
+	if(player.preservesPitch != undefined) {
+		player.preservesPitch = (onOff == undefined) ? player.preservesPitch : onOff;
+		return player.preservesPitch;
+	} else if(player.mozPreservesPitch != undefined) { // Firefox
+		player.mozPreservesPitch = (onOff == undefined) ? player.mozPreservesPitch : onOff;
+		return player.mozPreservesPitch;
+	} else if(player.webkitPreservesPitch != undefined) { // Safari
+		player.webkitPreservesPitch = (onOff == undefined) ? player.webkitPreservesPitch : onOff;
+		return player.webkitPreservesPitch;
+	} else {
+		console.log("preservesPitch is not supported by this browser.");
+	}
+}
 
 $(() => {
 	// 定義er
@@ -166,7 +157,7 @@ $(() => {
 		// clickして逆になるので想像と逆の変数設定を
 		player.loop = true;
 		player.shuffle = true;
-		setPreservesPitch(false);
+		PreservesPitch(false);
 		player.muted = true;
 		$("button.on_off").slice(1).click();
 		$("input.range").slice(0, -1).val(1).trigger("input");
@@ -201,8 +192,8 @@ $(() => {
 				yn = player.shuffle;
 				break;
 			case "pitch":
-				setPreservesPitch(!getPreservesPitch());
-				yn = !getPreservesPitch();
+				PreservesPitch(!PreservesPitch());
+				yn = !PreservesPitch();
 				break;
 			case "mute":
 				player.muted = !player.muted;
@@ -254,7 +245,7 @@ $(() => {
 		$("input.seek.show").width(`${duration *10}`.length *10);
 		$("input.seek.range").val(Math.floor(player.currentTime *10) /10);
 		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
-		$("ol#play_list").height(window.innerHeight -125);
+		$("ol#play_list").height(window.innerHeight -150);
 		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
 	}, 10);
 	// アルバムアートと顔のスイッチ
