@@ -87,7 +87,15 @@ const start = (ct) => {
 										`Comment: ${(res.tags.comment && res.tags.comment.text != "0") ? res.tags.comment.text : ""}<br>` +
 										`Track: ${(res.tags.track) ? res.tags.track : ""}<br>` +
 										`Genre: ${(res.tags.genre) ? res.tags.genre : ""}<br>`);
-			$("span#lyrics").html(`Lyrics: ${(res.tags.lyrics) ? ((res.tags.lyrics.lyrics) ? res.tags.lyrics : res.tags.lyrics) : ""}<br>`);
+			let tmp = res.tags.lyrics
+			if (tmp) {
+				if (typeof tmp == "object") {
+					tmp = tmp.lyrics.replace(/\n|\r/g, "<br>")
+				}
+			} else {
+				tmp = ""
+			}
+			$("span#lyrics").html(`Lyrics: ${tmp}<br>`);
 			console.log("Lyricks:", res.tags.lyrics);
 		},
 		onError: (error) => {
@@ -246,6 +254,7 @@ $(() => {
 		$("input.seek.range").val(Math.floor(player.currentTime *10) /10);
 		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
 		$("ol#play_list").height(window.innerHeight -150);
+		$("span#lyrics").parent().height(window.innerHeight -530);
 		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
 	}, 10);
 	// アルバムアートと顔のスイッチ

@@ -125,6 +125,10 @@ ol#play_list li {
 	cursor: pointer;
 }
 
+div#lyrics_div {
+	overflow: auto;
+}
+
 /* キーボードショートカット */
 div#shadow {
 	display: none;
