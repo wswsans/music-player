@@ -96,7 +96,6 @@ const start = (ct) => {
 				tmp = ""
 			}
 			$("span#lyrics").html(`Lyrics: ${tmp}<br>`);
-			console.log("Lyricks:", res.tags.lyrics);
 		},
 		onError: (error) => {
 			console.log("Error", error.info);
