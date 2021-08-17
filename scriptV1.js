@@ -252,8 +252,8 @@ $(() => {
 		$("input.seek.show").width(`${duration *10}`.length *10);
 		$("input.seek.range").val(Math.floor(player.currentTime *10) /10);
 		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
-		$("ol#play_list").height(window.innerHeight -150);
-		$("span#lyrics").parent().height(window.innerHeight -530);
+		$("ol#play_list").height(window.innerHeight -125);
+		$("span#lyrics").parent().height(window.innerHeight -531);
 		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
 	}, 10);
 	// アルバムアートと顔のスイッチ
