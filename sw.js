@@ -1,4 +1,4 @@
-var CACHE_NAME = 'MusicPlayer-v1';
+var cacheName = 'MusicPlayer-v1';
 var urlsToCache = [
   '/music-player/',
   '/music-player/extension/jsmediatags.min.js',
