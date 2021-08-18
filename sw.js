@@ -1,17 +1,17 @@
 self.importScripts('scriptV1.js');
 var cacheName = 'MusicPlayer v1';
 var appShellFiles = [
-	'extension/jsmediatags.min.js',
-	'extension/jquery-3.6.0.min.js',
-	'image/face_normal.png',
-	'image/mouse_close.png',
-	'image/mouse_open.png',
-	'image/mouse_open_light.png',
-	'image/no_image.png',
-	'googleff1a1e907a783b3b.html',
-	'index.html',
-	'scriptV1.js',
-	'style.css'
+	'/music-player/extension/jsmediatags.min.js',
+	'/music-player/extension/jquery-3.6.0.min.js',
+	'/music-player/image/face_normal.png',
+	'/music-player/image/mouse_close.png',
+	'/music-player/image/mouse_open.png',
+	'/music-player/image/mouse_open_light.png',
+	'/music-player/image/no_image.png',
+	'/music-player/googleff1a1e907a783b3b.html',
+	'/music-player/index.html',
+	'/music-player/scriptV1.js',
+	'/music-player/style.css'
 ];
 
 self.addEventListener('install', function(e) {
