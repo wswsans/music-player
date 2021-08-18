@@ -114,6 +114,16 @@ const PreservesPitch = (onOff) => {
 }
 
 $(() => {
+	// PWA
+	if ('serviceWorker' in navigator) {
+		navigator.serviceWorker.register('/music-player/sw.js').then(function(registration) {
+			// 登録成功
+			console.log('ServiceWorker registration successful with scope: ', registration.scope);
+		}).catch(function(err) {
+			// 登録失敗 :(
+			console.log('ServiceWorker registration failed: ', err);
+		});
+	}
 	// 定義er
 	$("input#play_data").change((e) => {
 		// リセット
@@ -408,14 +418,3 @@ $(() => {
 	// ダイアログ
 	$("div#shadow").click(() => {$("div#shadow").stop().fadeToggle(100); $("div#dialog").stop().fadeToggle(100)});
 });
-
-// PWA
-if ('serviceWorker' in navigator) {
-	navigator.serviceWorker.register('/music-player/sw.js').then(function(registration) {
-		// 登録成功
-		console.log('ServiceWorker registration successful with scope: ', registration.scope);
-	}).catch(function(err) {
-		// 登録失敗 :(
-		console.log('ServiceWorker registration failed: ', err);
-	});
-}
