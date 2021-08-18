@@ -24,7 +24,7 @@ player.preload = "metadata";
 if ('serviceWorker' in navigator) {
 	// より限定的なスコープを使用して、
 	// サイトのルートでホストされるサービスワーカーを登録します。
-	navigator.serviceWorker.register('/music-player/sw.js', {scope: './'}).then(function(registration) {
+	navigator.serviceWorker.register('/music-player/sw.js', {scope: '/music-player/'}).then(function(registration) {
 		console.log('Success:\n', registration);
 	}, /*catch*/ function(error) {
 		console.log('Failed:\n', error);
