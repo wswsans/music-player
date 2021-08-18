@@ -1,5 +1,6 @@
 var CACHE_NAME = 'MusicPlayer-v1';
 var urlsToCache = [
+  '/music-player/',
   '/music-player/extension/jsmediatags.min.js',
   '/music-player/extension/jquery-3.6.0.min.js',
   '/music-player/image/face_normal.png',
