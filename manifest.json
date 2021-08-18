@@ -44,8 +44,10 @@
             "type": "image/jpeg"
         }
     ],
-    "start_url": "index.html",
-    "display": "fullscreen"
-    // "theme_color": "#525252",
-    // "background_color": "#FFFFFF"
+    "Scope": "/music-player/",
+    "start_url": "./index.html",
+    "display": "fullscreen",
+    "theme_color": "#525252",
+    "background_color": "#FFFFFF",
+    "splash_pages": null
 }
