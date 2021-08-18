@@ -13,54 +13,26 @@ var urlsToCache = [
   '/music-player/style.css'
 ];
 
-self.addEventListener('install', function(event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(function(cache) {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
+// Installing Service Worker
+self.addEventListener('install', (e) => {
+  console.log('[Service Worker] Install');
+  e.waitUntil((async () => {
+    const cache = await caches.open(cacheName);
+    console.log('[Service Worker] Caching all: app shell and content');
+    await cache.addAll(urlsToCache);
+  })());
 });
 
-self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    caches.match(event.request)
-      .then(function(response) {
-        // キャッシュがあったのでそのレスポンスを返す
-        if (response) {
-          return response;
-        }
-        // 重要：リクエストを clone する。リクエストは Stream なので
-        // 一度しか処理できない。ここではキャッシュ用、fetch 用と2回
-        // 必要なので、リクエストは clone しないといけない
-        var fetchRequest = event.request.clone();
-        
-        return fetch(fetchRequest).then(
-          function(response) {
-            // レスポンスが正しいかをチェック
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-        
-            // 重要：レスポンスを clone する。レスポンスは Stream で
-            // ブラウザ用とキャッシュ用の2回必要。なので clone して
-            // 2つの Stream があるようにする
-            var responseToCache = response.clone();
-        
-            caches.open(CACHE_NAME)
-              .then(function(cache) {
-                cache.put(event.request, responseToCache);
-              });
-        
-            return response;
-          }
-        );
-      }
-    )
-  );
-});
-
-self.addEventListener('activate', function(event) {
-  clients.claim();
+// Fetching content using Service Worker
+self.addEventListener('fetch', (e) => {
+  e.respondWith((async () => {
+    const r = await caches.match(e.request);
+    console.log(`[Service Worker] Fetching resource: ${e.request.url}`);
+    if (r) return r;
+    const response = await fetch(e.request);
+    const cache = await caches.open(cacheName);
+    console.log(`[Service Worker] Caching new resource: ${e.request.url}`);
+    cache.put(e.request, response.clone());
+    return response;
+  })());
 });
