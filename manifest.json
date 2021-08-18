@@ -4,44 +4,44 @@
     "description": "音楽プレイヤー",
     "icons": [
         {
-            "src": "icon/32.jpg",
+            "src": "icon/32.png",
             "sizes": "32x32",
-            "type": "image/jpeg"
+            "type": "image/png"
         },
         {
-            "src": "icon/64.jpg",
+            "src": "icon/64.png",
             "sizes": "64x64",
-            "type": "image/jpeg"
+            "type": "image/png"
         },
         {
-            "src": "icon/96.jpg",
+            "src": "icon/96.png",
             "sizes": "96x96",
-            "type": "image/jpeg"
+            "type": "image/png"
         },
         {
-            "src": "icon/128.jpg",
+            "src": "icon/128.png",
             "sizes": "128x128",
-            "type": "image/jpeg"
+            "type": "image/png"
         },
         {
-            "src": "icon/168.jpg",
+            "src": "icon/168.png",
             "sizes": "168x168",
-            "type": "image/jpeg"
+            "type": "image/png"
         },
         {
-            "src": "icon/192.jpg",
+            "src": "icon/192.png",
             "sizes": "192x192",
-            "type": "image/jpeg"
+            "type": "image/png"
         },
         {
-            "src": "icon/256.jpg",
+            "src": "icon/256.png",
             "sizes": "256x256",
-            "type": "image/jpeg"
+            "type": "image/png"
         },
         {
-            "src": "icon/512.jpg",
+            "src": "icon/512.png",
             "sizes": "512x512",
-            "type": "image/jpeg"
+            "type": "image/png"
         }
     ],
     "Scope": "/music-player/",
