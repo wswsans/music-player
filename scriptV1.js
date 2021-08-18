@@ -87,14 +87,9 @@ const start = (ct) => {
 										`Comment: ${(res.tags.comment && res.tags.comment.text != "0") ? res.tags.comment.text : ""}<br>` +
 										`Track: ${(res.tags.track) ? res.tags.track : ""}<br>` +
 										`Genre: ${(res.tags.genre) ? res.tags.genre : ""}<br>`);
-			let tmp = res.tags.lyrics
-			if (tmp) {
-				if (typeof tmp == "object") {
-					tmp = tmp.lyrics.replace(/\n|\r/g, "<br>")
-				}
-			} else {
-				tmp = ""
-			}
+			let tmp = (res.tags.lyrics) ? res.tags.lyrics : "";
+			if (typeof tmp == "object") tmp = tmp.lyrics.replace(/\n|\r/g, "<br>")
+			else tmp = tmp.replace(/\n|\r/g, "<br>")
 			$("span#lyrics").html(`Lyrics: ${tmp}<br>`);
 		},
 		onError: (error) => {
