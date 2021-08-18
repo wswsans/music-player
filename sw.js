@@ -1,4 +1,4 @@
-self.importScripts('/musi-player/scriptV1.js');
+self.importScripts('/music-player/scriptV1.js');
 var cacheName = 'MusicPlayer v1';
 var appShellFiles = [
 	'/music-player/extension/jsmediatags.min.js',
