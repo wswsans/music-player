@@ -20,6 +20,18 @@ let lipSyncInterval = null;
 
 player.preload = "metadata";
 
+// PWA
+if ('serviceWorker' in navigator) {
+	// より限定的なスコープを使用して、
+	// サイトのルートでホストされるサービスワーカーを登録します。
+	navigator.serviceWorker.register('/music-player/sw.js', {scope: './'}).then(function(registration) {
+		console.log('Success:\n', registration);
+	}, /*catch*/ function(error) {
+		console.log('Failed:\n', error);
+	});
+} else {
+	console.log('Service worker is Not supported');
+}
 // Web Audio APIの初期化
 const webAudioSetup = () => {
 	context = new AudioContext();
@@ -114,16 +126,6 @@ const PreservesPitch = (onOff) => {
 }
 
 $(() => {
-	// PWA
-	if ('serviceWorker' in navigator) {
-		navigator.serviceWorker.register('/music-player/sw.js').then(function(registration) {
-			// 登録成功
-			console.log('ServiceWorker registration successful with scope: ', registration.scope);
-		}).catch(function(err) {
-			// 登録失敗 :(
-			console.log('ServiceWorker registration failed: ', err);
-		});
-	}
 	// 定義er
 	$("input#play_data").change((e) => {
 		// リセット
