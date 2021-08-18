@@ -408,3 +408,8 @@ $(() => {
 	// ダイアログ
 	$("div#shadow").click(() => {$("div#shadow").stop().fadeToggle(100); $("div#dialog").stop().fadeToggle(100)});
 });
+
+// PWA
+if('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+};
