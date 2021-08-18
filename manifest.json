@@ -44,8 +44,8 @@
             "type": "image/jpeg"
         }
     ],
-    "start_url": "/music-player/index.html",
-    "display": "fullscreen",
-    "theme_color": "#525252",
-    "background_color": "#FFFFFF"
+    "start_url": "index.html",
+    "display": "fullscreen"
+    // "theme_color": "#525252",
+    // "background_color": "#FFFFFF"
 }
