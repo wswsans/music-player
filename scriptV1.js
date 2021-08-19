@@ -101,12 +101,20 @@ const start = (ct) => {
 										`Genre: ${(res.tags.genre) ? res.tags.genre : ""}<br>`);
 			let tmp = (res.tags.lyrics) ? res.tags.lyrics : "";
 			if (typeof tmp == "object") tmp = tmp.lyrics.replace(/\n|\r/g, "<br>")
-			else tmp = tmp.replace(/\n|\r/g, "<br>")
+			else tmp = tmp.replace(/\n|\r/g, "<br>");
 			$("span#lyrics").html(`Lyrics: ${tmp}<br>`);
 		},
 		onError: (error) => {
 			console.log("Error", error.info);
 			$("img#switch_img").click().click();
+		}
+	});
+	Notification.requestPermission().then((result) => {
+		if (result === 'granted') {
+			new Notification($("li")[count].innerText, {
+				body: "Play",
+				icon: $("img#switch_img").prop("artdata")
+			});
 		}
 	});
 };
