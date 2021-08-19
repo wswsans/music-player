@@ -7,8 +7,8 @@
 		<meta name="author" content="wswsans">
 		<meta name="theme-color" content="#525252">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta property="og:image" content="icon/512.jpg">
-		<link rel="shortcut icon" href="icon/32.jpg">
+		<meta property="og:image" content="icon/512.png">
+		<link rel="shortcut icon" href="icon/32.png">
 		<link rel="stylesheet" href="./style.css">
 		<script type="text/javascript" src="./extension/jquery-3.6.0.min.js"></script>
 		<script type="text/javascript" src="./extension/jsmediatags.min.js"></script>
@@ -35,6 +35,10 @@
 				<tr>
 					<th>スペース</th>
 					<td>ファイル未選択: ファイルを選択する<br>ファイル選択済み: プレイヤーを起動する<br>再生中: 一時停止 / 再開</td>
+				</tr>
+				<tr>
+					<th>N</th>
+					<td>通知を受け取る / 受け取らない</td>
 				</tr>
 				<tr>
 					<th>R</th>
@@ -111,6 +115,7 @@
 			<button id="start">▷</button>
 		</section>
 		<section id="player">
+			<button id="notification" class="on_off">❶</button>
 			<button id="reset">↩︎</button>
 			<button id="pause" class="on_off">| |</button>
 			<!-- 曲 -->

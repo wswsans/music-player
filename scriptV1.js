@@ -110,7 +110,7 @@ const start = (ct) => {
 		}
 	});
 	Notification.requestPermission().then((result) => {
-		if (result === 'granted') {
+		if (result === 'granted' && $("button#notification").hasClass("btn_on")) {
 			new Notification($("li")[count].innerText, {
 				body: "Play",
 				icon: $("img#switch_img").prop("artdata")
@@ -199,6 +199,9 @@ $(() => {
 	$("button.on_off").click((e) => {
 		let yn = null;
 		switch (e.target.id) {
+			case "notification":
+				yn = !$(e.target).hasClass("btn_on")
+				break;
 			case "pause":
 				if(!started) return;
 				(paused) ? player.play() : player.pause();
@@ -341,6 +344,10 @@ $(() => {
 						$("input#play_data").click();
 					}
 				}
+				break;
+			case "KeyN":
+				if (event.metaKey || event.ctrlKey || !started) return;
+				$("button#notification").click();
 				break;
 			case "KeyR":
 				if (event.metaKey || event.ctrlKey || !started) return;
