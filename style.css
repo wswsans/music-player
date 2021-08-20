@@ -39,7 +39,7 @@ body {
 	margin: 0px;
 	padding: 0px;
 }
-input[type="number"] {
+input[type="number"], input[type="text"]{
 	text-align: center;
 	background-color: #FFF;
 	border: none;
@@ -48,7 +48,7 @@ input[type="number"] {
 	transform-origin: 0% 50%;
 	transition: 0.2s;
 }
-input[type="number"]:focus {
+input[type="number"]:focus, input[type="text"]:focus {
 	border-bottom: 1px solid #B3B3B3;
 }
 button {
@@ -84,9 +84,13 @@ button#shuffle, button#loop, button#shuffle_btn {
 input#play_data {
 	margin: 4px 0px;
 }
+/* 秒スキップ */
+button.time.next {
+	margin-right: 98px;
+}
 /* シークバー  */
 input.seek.range {
-	width: 560px;
+	width: 600px; /* ボタン1個: 40pxくらい */
 }
 /* ファイル詳細 */
 div#switch {
@@ -110,6 +114,9 @@ td#detail {
 /* トラック  */
 input#list_track {
 	width: 40px;
+}
+input#search {
+	width: 100px;
 }
 /* プレイリスト  */
 ol#play_list {

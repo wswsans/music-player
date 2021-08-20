@@ -160,7 +160,7 @@ $(() => {
 		}
 	});
 	// 定義er
-	$("input#play_data").change((e) => {
+	$("input#play_data").change(e => {
 		// リセット
 		count = 0;
 		started = false;
@@ -188,7 +188,7 @@ $(() => {
 					.click(() => { if (count != i) start(i) });
 		};
 	});
-	$("button#start").click((e) => {
+	$("button#start").click(e => {
 		if (waiting) return;
 		if (!$("input#play_data")[0].files.length || $("button#start").css("display") == "none") {
 			console.log("Nothing");
@@ -200,7 +200,7 @@ $(() => {
 		$("table#lists").show();
 		$(e.target).hide();
 	});
-	$("button#reset").click((e) => {
+	$("button#reset").click(e => {
 		// clickして逆になるので想像と逆の変数設定を
 		player.loop = true;
 		player.shuffle = true;
@@ -214,7 +214,7 @@ $(() => {
 		if (window.navigator.platform.slice(0, 3) == "Win") $("input.volume").val(0.5).trigger("input");
 	});
 	// 曲
-	$("button.audio").click((e) => {
+	$("button.audio").click(e => {
 		if (waiting) return;
 		count += {next: 1, back: -1}[e.target.className.split(" ")[1]]
 		if (count < 0) count = data.length -1;
@@ -222,7 +222,7 @@ $(() => {
 		start(count);
 	});
 	// 一時停止, ループ, シャッフル, ピッチ, ミュート 
-	$("button.on_off").click((e) => {
+	$("button.on_off").click(e => {
 		let yn = null;
 		switch (e.target.id) {
 			case "notification":
@@ -256,20 +256,20 @@ $(() => {
 	});
 	$("button#shuffle_btn").click(() => { if (player.shuffle) $("li")[ Math.floor(Math.random() * (data.length)) ].click() });
 	// 速度
-	$("input.speed.range").on("input", (e) => $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = $(e.target).val());
+	$("input.speed.range").on("input", e => $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = $(e.target).val());
 	// 音量
-	$("input.volume.range").on("input", (e) => {
+	$("input.volume.range").on("input", e => {
 		$("input.volume.show")[0].value = player.volume = ($(e.target).val() + ".0").slice(0, 3);
 		player.muted = !player.volume;
 		(!player.muted) ? $("button#mute").addClass("btn_on") : $("button#mute").removeClass("btn_on");
 	});
 	// 速度, 音量 共通
-	$("input.show.similar_num").change((e) => {
+	$("input.show.similar_num").change(e => {
 		if ($(e.target).val() == "") $(e.target).val({speed: 1, volume: 1}[e.target.className.split(" ")[0]]);
 		$(`input.${e.target.className.split(" ")[0]}.range`).val($(e.target).val()).trigger("input");
 		$(e.target).blur();
 	});
-	$("button.similar_btn").click((e) => {
+	$("button.similar_btn").click(e => {
 		let classes = e.target.className.split(" ");
 		let code = {next: 1, back: -1}[classes[1]];
 		if (classes[0] == "time") {
@@ -282,28 +282,31 @@ $(() => {
 		}
 	});
 	// スキップ時間
-	$("input.time.show").change((e) => $(e.target).val( ($(e.target).val()) ? Math.floor(Math.abs($(e.target).val()) *10) /10 : "5" ).width(`${$("input.time.show").val() *10}`.length *5 +10).blur());
+	$("input.time.show").change(e => {
+		$(e.target).val( ($(e.target).val()) ? Math.floor(Math.abs($(e.target).val()) *10) /10 : "5" ).width(`${$("input.time.show").val() *10}`.length *5 +10).blur()
+	});
 	// シークバー
-	$("input.seek.range").on("input", (e) => player.currentTime = $(e.target).val());
-	$("input.seek.show").change((e) => { // 上とはわざと分離させる, classNameをまとめた変数がないから長くなって無駄
+	$("input.seek.range").on("input", e => player.currentTime = $(e.target).val());
+	$("input.seek.show").change(e => { // 上とはわざと分離させる, classNameをまとめた変数がないから長くなって無駄
 		if ($(e.target).val() == "") $(e.target).val($("input.range.seek").val());
 		player.currentTime = $(e.target).val();
 		$(e.target).blur();
 	});
 	window.setInterval(() => {
+		$("span#lyrics").parent().height(window.innerHeight -531);
+		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
+		$("button.time.next").css("marginRight", 200 -82 -$("input.time.show").width());
+		$("ol#play_list").height(window.innerHeight -125);
 		if (!player.duration) return;
 		// durationが必要
 		duration = Math.floor(player.duration *10) /10;
 		$("input.seek").prop("max", duration);
-		$("input.seek.show").width(`${duration *10}`.length *10);
 		$("input.seek.range").val(Math.floor(player.currentTime *10) /10);
-		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
-		$("ol#play_list").height(window.innerHeight -125);
-		$("span#lyrics").parent().height(window.innerHeight -531);
+		$("input.seek.show").width(`${duration *10}`.length *10);
 		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
 	}, 10);
 	// アルバムアートと顔のスイッチ
-	$("div#switch").click((e) => {
+	$("div#switch").click(e => {
 		$("img#switch_img").toggleClass("album_art").toggleClass("face");
 		if ($("img#switch_img").hasClass("album_art")) {
 			$("img#switch_img").prop("src", $("img#switch_img").prop("artdata"));
@@ -316,7 +319,7 @@ $(() => {
 		}
 	});
 	// 曲リスト
-	$("input#list_track").change((e) => {
+	$("input#list_track").change(e => {
 		if ($(e.target).val() == "") $(e.target).val(count +1);
 		if ($(e.target).val() < 0) {
 			if (0 < 1 +data.length +parseInt($(e.target).val())) {
@@ -332,6 +335,16 @@ $(() => {
 		$("li")[$(e.target).val() -1].click();
 		$(e.target).blur();
 	});
+	$("input#search").on("input", e => {
+		if ($(e.target).val() == "") {
+			$("ol#play_list li").show();
+		} else {
+			$("ol#play_list li").hide();
+			$.each($("ol#play_list li"), (ind, val) => {
+				if (($(val).text().toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show();
+			})
+		}
+	})
 	// 曲終了
 	$(player).on("ended", () => {
 		if (!player.loop) {
@@ -347,22 +360,23 @@ $(() => {
 	// 馬鹿みたいに長いショートカット
 	$("html").on("keydown", (event) => {
 		// 本職
+		if ( ((event.metaKey || event.ctrlKey) && event.code != "Slash") ||
+			(!started && ["Slash", "Escape", "KeyC", "Space"].indexOf(event.code) == -1) ||
+			(document.activeElement.type == "text") ||
+			(document.activeElement.nodeName == "INPUT" && ["Arrow", "Digit"].indexOf(event.code.slice(0, 5)) != -1) ) return;
 		switch (event.code) {
 			case "Slash":
-				if (!(event.metaKey || event.ctrlKey)) return;
 				$("div#shadow").stop().fadeToggle(100); $("div#dialog").stop().fadeToggle(100);
 				break;
 			case "Escape":
 				$("div#shadow").stop().fadeOut(100); $("div#dialog").stop().fadeOut(100);
 				break;
 			case "KeyC":
-				if (event.metaKey || event.ctrlKey) return;
 				$("input#play_data").click();
 				break;
 			case "Space":
 				if (event.preventDefault) event.preventDefault();
 				event.returnValue = false;
-				if (event.metaKey || event.ctrlKey) return;
 				if (started) {
 					$("button#pause").click();
 				} else {
@@ -374,28 +388,22 @@ $(() => {
 				}
 				break;
 			case "KeyN":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				$("button#notification").click();
 				break;
 			case "KeyR":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				$("button#reset").click();
 				break;
 			case "KeyA":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				$("button.audio.back").click();
 				break;
 			case "KeyD":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				$("button.audio.next").click();
 				break;
 			case "KeyL":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				if (!started) break;
 				$("button#loop").click();
 				break;
 			case "KeyS":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				if (event.shiftKey) {
 					$("button#shuffle_btn").click();
 				} else {
@@ -403,46 +411,36 @@ $(() => {
 				}
 				break;
 			case "Comma":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				if (!event.shiftKey) break;
 				$("button.speed.back").click();
 				break;
 			case "Period":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				if (!event.shiftKey) break;
 				$("button.speed.next").click();
 				break;
 			case "KeyP":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				$("button#pitch").click();
 				break;
 			case "ArrowUp":
-				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
 				$("button.volume.next").click();
 				break;
 			case "ArrowDown":
-				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
 				$("button.volume.back").click();
 				break;
 			case "KeyM":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				$("button#mute").click();
 				break;
 			case "ArrowLeft":
-				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
 				$("button.time.back").click();
 				break;
 			case "ArrowRight":
-				if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
 				$("button.time.next").click();
 				break;
 			case "KeyI":
-				if (event.metaKey || event.ctrlKey || !started) return;
 				$("div#switch").click();
 				break;
 		};
 		if (event.code.slice(0, -1) == "Digit") {
-			if (event.metaKey || event.ctrlKey || !started || document.activeElement.type == "number") return;
 			if (event.shiftKey) {
 				let num = parseInt(event.code.slice(-1)) -1;
 				if (num >= 0){
@@ -459,7 +457,7 @@ $(() => {
 	// 定義し終わったらやるタイプのものたち, data.changeでリセットするならあっちで
 	$("input.speed")[0].min = "0";
 	if (window.innerHeight > window.innerWidth) alert("横画面の方が操作しやすいです")
-	$("*").not("input[type=number]").focus((e) => $(e.target).blur());
+	$("*").not("input[type=number], input[type=text]").focus(e => $(e.target).blur());
 	// ダイアログ
 	$("div#shadow").click(() => {$("div#shadow").stop().fadeToggle(100); $("div#dialog").stop().fadeToggle(100)});
 });
