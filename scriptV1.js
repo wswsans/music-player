@@ -211,6 +211,7 @@ $(() => {
 		$("input.range").slice(0, -1).val(1).trigger("input");
 		$("input.time.show").val(5).change();
 		$("img#switch_img").removeClass("album_art").addClass("face").click();
+		$("input#search").val("").trigger("input");
 		if (window.navigator.platform.slice(0, 3) == "Win") $("input.volume").val(0.5).trigger("input");
 	});
 	// 曲
