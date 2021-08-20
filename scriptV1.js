@@ -2,8 +2,6 @@ console.log("scriptV1.js Loaded!");
 console.log((window.navigator.onLine) ? "Online" : "Offline");
 
 const player = new Audio();
-const fReader = new FileReader();
-const mediaTag = window.jsmediatags;
 
 let started = false;
 let paused = false; // player.pausedがあるが, button#startで強制的にpausedをはずさないといけないが, 外せないのでオリジナルを作ることにしている
@@ -53,11 +51,6 @@ const syncLip = (spectrums) => {
 	$("img#mouse").attr("src", `./image/${imgName}`);
 	prevSpec = totalSpectrum;
 };
-fReader.onloadend = (event) => {
-	player.src = event.target.result;
-	started = true;
-	if (!paused) player.play();
-};
 const start = (ct) => {
 	if (waiting) return;
 	waiting = true;
@@ -71,7 +64,13 @@ const start = (ct) => {
 		}, 100);
 	}
 	// ロード
+	const fReader = new FileReader();
 	fReader.readAsDataURL(data[ct]);
+	fReader.onloadend = (event) => {
+		player.src = event.target.result;
+		started = true;
+		if (!paused) player.play();
+	};
 	// ロードが終わったらやりたいもの
 	count = ct;
 	$("li").css("border", "1px dotted #000");
@@ -82,7 +81,7 @@ const start = (ct) => {
 	$("img#switch_img").prop("artdata", "./image/no_image.png");
 	$("span#description").html("Title: <br>Artist: <br>Album: <br>Year: <br>Comment: <br>Track: <br>Genre: <br>");
 	$("span#lyrics").html("Lyrics: <br>");
-	// if (data[ct].type == "audio/wav") return;
+	const mediaTag = window.jsmediatags;
 	mediaTag.read(data[ct], {
 		onSuccess: function(res) {
 			let pic = base64String = "";
@@ -153,7 +152,6 @@ $(() => {
 			$(e.target).css("background", "rgba(255, 255, 255, 0)");
 			let tmp = new DataTransfer();
 			Object.values(e.originalEvent.dataTransfer.files).forEach(val => {
-				// console.log($("input#play_data").attr("accept"), (val.name.replace(/(.*)\./, ".")))
 				if ($("input#play_data").attr("accept").indexOf(val.name.replace(/(.*)\./, ".")) != -1) {
 					tmp.items.add(val);
 				}

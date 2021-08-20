@@ -36,3 +36,21 @@ self.addEventListener('fetch', (e) => {
     return response;
   })());
 });
+
+function checkUpdate() {
+    var appCache = window.applicationCache;
+    if (appCache) {
+        appCache.addEventListener('updateready', function(event) {
+            if (appCache.status === appCache.UPDATEREADY) {
+                // 古いキャッシュを削除
+                appCache.swapCache();
+                // 更新を反映するために、ユーザにページをリロードしてもらいます
+                if (window.confirm('新しいバージョンのアプリに更新しますか？')) {
+                    window.location.reload(0);
+                }
+            } 
+        }
+    }
+}
+
+checkUpdate()
