@@ -21,7 +21,7 @@ let lipSyncInterval = null;
 player.preload = "metadata";
 
 // PWA
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && window.location.hostname != "localhost") {
 	// より限定的なスコープを使用して、
 	// サイトのルートでホストされるサービスワーカーを登録します。
 	navigator.serviceWorker.register('/music-player/sw.js', {scope: '/music-player/'}).then(function(registration) {
@@ -100,8 +100,8 @@ const start = (ct) => {
 										`Track: ${(res.tags.track) ? res.tags.track : ""}<br>` +
 										`Genre: ${(res.tags.genre) ? res.tags.genre : ""}<br>`);
 			let tmp = (res.tags.lyrics) ? res.tags.lyrics : "";
-			if (typeof tmp == "object") tmp = tmp.lyrics.replace(/\n|\r/g, "<br>")
-			else tmp = tmp.replace(/\n|\r/g, "<br>");
+			if (typeof tmp == "object") tmp = tmp.lyrics;
+			tmp = tmp.replace(/\n|\r/g, "<br>");
 			$("span#lyrics").html(`Lyrics: ${tmp}<br>`);
 		},
 		onError: (error) => {
@@ -111,10 +111,12 @@ const start = (ct) => {
 	});
 	Notification.requestPermission().then((result) => {
 		if (result === 'granted' && $("button#notification").hasClass("btn_on")) {
-			new Notification($("li")[count].innerText, {
-				body: "Play",
-				icon: $("img#switch_img").prop("artdata")
-			});
+			setTimeout(() => {
+				new Notification($("li")[count].innerText, {
+					body: "Play",
+					icon: $("img#switch_img").prop("artdata")
+				});
+			}, 300);
 		}
 	});
 };
@@ -134,6 +136,31 @@ const PreservesPitch = (onOff) => {
 }
 
 $(() => {
+	$("div#drag_drop").on({
+		dragover: e => {
+			e.stopPropagation();
+			e.preventDefault();
+			$(e.target).css("background", "#e1e7f0");
+		},
+		dragleave: e => {
+			e.stopPropagation();
+			e.preventDefault();
+			$(e.target).css("background", "rgba(255, 255, 255, 0)");
+		},
+		drop: e => {
+			e.stopPropagation();
+			e.preventDefault();
+			$(e.target).css("background", "rgba(255, 255, 255, 0)");
+			let tmp = new DataTransfer();
+			Object.values(e.originalEvent.dataTransfer.files).forEach(val => {
+				// console.log($("input#play_data").attr("accept"), (val.name.replace(/(.*)\./, ".")))
+				if ($("input#play_data").attr("accept").indexOf(val.name.replace(/(.*)\./, ".")) != -1) {
+					tmp.items.add(val);
+				}
+			})
+			$("input#play_data").prop("files", tmp.files).change();
+		}
+	});
 	// 定義er
 	$("input#play_data").change((e) => {
 		// リセット
@@ -181,6 +208,7 @@ $(() => {
 		player.shuffle = true;
 		PreservesPitch(false);
 		player.muted = true;
+		$("button#notification").hasClass("btn_on");
 		$("button.on_off").slice(1).click();
 		$("input.range").slice(0, -1).val(1).trigger("input");
 		$("input.time.show").val(5).change();
@@ -250,7 +278,9 @@ $(() => {
 			player.currentTime += code * $("input.time.show").val();
 			$(e.target).blur();
 		} else {
-			$(`input.${classes[0]}.range`).val(parseFloat($(`input.${classes[0]}.range`).val()) + code *{volume: 0.1, speed: 0.25}[classes[0]]).trigger("input");
+			// 先回りしてエラー回避
+			if ((parseFloat($(`input.${classes[0]}.range`).val()) +code*0.05) == 0.05 && classes[0] == "speed") $(`input.${classes[0]}.range`).val(0.05);
+			$(`input.${classes[0]}.range`).val(parseFloat($(`input.${classes[0]}.range`).val()) + code *{volume: 0.1, speed: 0.05}[classes[0]]).trigger("input");
 		}
 	});
 	// スキップ時間
