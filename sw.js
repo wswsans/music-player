@@ -49,7 +49,7 @@ function checkUpdate() {
                     window.location.reload(0);
                 }
             } 
-        }
+        });
     }
 }
 
