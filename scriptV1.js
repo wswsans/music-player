@@ -206,7 +206,7 @@ $(() => {
 		player.shuffle = true;
 		PreservesPitch(false);
 		player.muted = true;
-		$("button#notification").hasClass("btn_on");
+		$("button#notification").addClass("btn_on");
 		$("button.on_off").not("button#pause").click();
 		$("input.range").slice(0, -1).val(1).trigger("input");
 		$("input.time.show").val(5).change();
