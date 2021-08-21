@@ -114,7 +114,7 @@ const start = (ct) => {
 				Push.create($("li")[count].innerText, {
 					body: "Play",
 					icon: $("img#switch_img").prop("artdata"),
-					timeout: 3000,
+					timeout: 5000,
 					onClick: function () {
 						window.focus(); 
 						this.close();
