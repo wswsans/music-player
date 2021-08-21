@@ -111,10 +111,15 @@ const start = (ct) => {
 	Notification.requestPermission().then((result) => {
 		if (result === 'granted' && $("button#notification").hasClass("btn_on")) {
 			setTimeout(() => {
-				new Notification($("li")[count].innerText, {
+				Push.create($("li")[count].innerText, {
 					body: "Play",
-					icon: $("img#switch_img").prop("artdata")
-				});
+					icon: $("img#switch_img").prop("artdata"),
+					timeout: 3000,
+					onClick: function () {
+						window.focus(); 
+						this.close();
+					}
+				})
 			}, 300);
 		}
 	});
@@ -345,7 +350,7 @@ $(() => {
 				if (($(val).text().toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show();
 			})
 		}
-	})
+	}).change(e => $(e.target).blur());
 	// 曲終了
 	$(player).on("ended", () => {
 		if (!player.loop) {
