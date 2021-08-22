@@ -1,3 +1,4 @@
+"use strict";
 console.log("scriptV1.js Loaded!");
 console.log((window.navigator.onLine) ? "Online" : "Offline");
 
@@ -84,11 +85,12 @@ const start = (ct) => {
 	const mediaTag = window.jsmediatags;
 	mediaTag.read(data[ct], {
 		onSuccess: function(res) {
-			let pic = base64String = "";
+			let pic = "";
+			let base64String = "";
 			pic = res.tags.picture;
 			if (pic) {
 				base64String = "";
-				for (i = 0; i < pic.data.length; i++) base64String += String.fromCharCode(pic.data[i]);
+				for (let i = 0; i < pic.data.length; i++) base64String += String.fromCharCode(pic.data[i]);
 				$("img#switch_img").prop("artdata", `data:${pic.format};base64,${window.btoa(base64String)}`).click().click();
 			} else { $("img#switch_img").click().click() };
 			$("span#description").html(`Title: ${(res.tags.title) ? res.tags.title : ""}<br>` +
@@ -190,7 +192,7 @@ $(() => {
 		for (let i=0; i<data.length; i++) {
 			$("<li>").appendTo("ol#play_list")
 					.text(data[i].name.split(".").slice(0, -1).join("."))
-					.click(() => { if (count != i) start(i) });
+					.click(() => { if (count != i || player.shuffle) start(i) });
 		};
 	});
 	$("button#start").click(e => {
