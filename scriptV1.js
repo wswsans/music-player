@@ -103,7 +103,7 @@ const start = (ct) => {
 			let tmp = (res.tags.lyrics) ? res.tags.lyrics : "";
 			if (typeof tmp == "object") tmp = tmp.lyrics;
 			tmp = tmp.replace(/\n|\r/g, "<br>");
-			$("span#lyrics").html(`Lyrics: ${tmp}<br>`);
+			$("span#lyrics").html(`Lyrics: <br>${tmp}<br>`);
 		},
 		onError: (error) => {
 			console.log("Error", error.info);
