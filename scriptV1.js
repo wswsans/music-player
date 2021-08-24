@@ -192,6 +192,7 @@ $(() => {
 		for (let i=0; i<data.length; i++) {
 			$("<li>").appendTo("ol#play_list")
 					.text(data[i].name.split(".").slice(0, -1).join("."))
+					.val(i + 1)
 					.click(() => { if (count != i || player.shuffle) start(i) });
 		};
 	});
