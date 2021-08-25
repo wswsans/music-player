@@ -369,10 +369,13 @@ $(() => {
 	// 馬鹿みたいに長いショートカット
 	$("html").on("keydown", (event) => {
 		// 本職
-		if ( ((event.metaKey || event.ctrlKey) && event.code != "Slash") ||
-			(!started && ["Slash", "Escape", "KeyC", "Space"].indexOf(event.code) == -1) ||
-			(document.activeElement.type == "text") ||
-			(document.activeElement.nodeName == "INPUT" && ["Arrow", "Digit"].indexOf(event.code.slice(0, 5)) != -1) ) return;
+		if (
+			((event.metaKey || event.ctrlKey) && event.code != "Slash") || // (cmd/ctrl) が "/"以外
+			(!started && ["Slash", "Escape", "KeyC", "Space"].indexOf(event.code) == -1) || // 始まってない (/, ESC, C, " " 以外)
+			(document.activeElement.type == "text") || // focus = text
+			(document.activeElement.nodeName == "INPUT" && ["Arrow", "Digit"].indexOf(event.code.slice(0, 5)) != -1) || // focus = number (Arrow, Digit の時)
+			(!event.shiftKey && ["Comma", "Period"].indexOf(event.code) != -1) // shiftじゃない (,, . の時)
+		) return;
 		switch (event.code) {
 			case "Slash":
 				$("div#shadow").stop().fadeToggle(100); $("div#dialog").stop().fadeToggle(100);
@@ -409,7 +412,6 @@ $(() => {
 				$("button.audio.next").click();
 				break;
 			case "KeyL":
-				if (!started) break;
 				$("button#loop").click();
 				break;
 			case "KeyS":
@@ -420,11 +422,9 @@ $(() => {
 				}
 				break;
 			case "Comma":
-				if (!event.shiftKey) break;
 				$("button.speed.back").click();
 				break;
 			case "Period":
-				if (!event.shiftKey) break;
 				$("button.speed.next").click();
 				break;
 			case "KeyP":
