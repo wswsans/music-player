@@ -75,8 +75,8 @@ const start = (ct) => {
 	// ロードが終わったらやりたいもの
 	count = ct;
 	$("li").css("border", "1px dotted #000");
-	$("li")[ct].style.border = "thick double #000";
-	document.title = `▷ ${$("li")[ct].innerText}`;
+	$(`li[value=${ct +1}]`).css("border", "thick double #000");
+	document.title = `▷ ${$(`li[value=${ct +1}]`).text()}`;
 	$("input#list_track").val(ct +1);
 	// ファイルデータ
 	$("img#switch_img").prop("artdata", "./image/no_image.png");
@@ -113,7 +113,7 @@ const start = (ct) => {
 	Notification.requestPermission().then((result) => {
 		if (result === 'granted' && $("button#notification").hasClass("btn_on")) {
 			setTimeout(() => {
-				Push.create($("li")[count].innerText, {
+				Push.create($(`li[value=${count +1}]`).text(), {
 					body: "Play",
 					icon: $("img#switch_img").prop("artdata"),
 					timeout: 5000,
@@ -240,7 +240,7 @@ $(() => {
 			case "pause":
 				if(!started) return;
 				(paused) ? player.play() : player.pause();
-				document.title = `${(paused) ? "▷" : "| |"} ${$("li")[count].innerText}`;
+				document.title = `${(paused) ? "▷" : "| |"} ${$(`li[value=${count +1}]`).text()}`;
 				yn = !paused
 				break;
 			case "loop":
@@ -263,7 +263,7 @@ $(() => {
 		};
 		(yn) ? $(e.target).addClass("btn_on") : $(e.target).removeClass("btn_on");
 	});
-	$("button#shuffle_btn").click(() => { if (player.shuffle) $("li")[ Math.floor(Math.random() * (data.length)) ].click() });
+	$("button#shuffle_btn").click(() => { if (player.shuffle) $(`li[value=${ Math.floor(Math.random() * (data.length)) +1 }]`).click() });
 	// 速度
 	$("input.speed.range").on("input", e => $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = $(e.target).val());
 	// 音量
@@ -341,7 +341,7 @@ $(() => {
 		} else if (data.length <= $(e.target).val()) {
 			$(e.target).val(data.length);
 		}
-		$("li")[$(e.target).val() -1].click();
+		$(`li[value=${ $(e.target).val() }]`).click();
 		$(e.target).blur();
 	});
 	$("input#search").on("input", e => {
@@ -358,7 +358,7 @@ $(() => {
 	$(player).on("ended", () => {
 		if (!player.loop) {
 			if (player.shuffle) {
-				$("li")[ Math.floor(Math.random() * (data.length)) ].click();
+				$(`li[value=${ Math.floor(Math.random() * (data.length)) +1 }]`).click();
 			} else {
 				$("button.audio.next").click();
 			};
@@ -453,8 +453,8 @@ $(() => {
 			if (event.shiftKey) {
 				let num = parseInt(event.code.slice(-1)) -1;
 				if (num >= 0){
-					if (!$("li")[num]) return;
-					$("li")[num].click();
+					if (!$(`li[value=${num +1}]`)) return;
+					$(`li[value=${num +1}]`).click();
 				} else {
 					$("li").slice(-1).click();
 				};
