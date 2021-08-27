@@ -180,6 +180,7 @@ $(() => {
 		for (let i=0; i<data.length; i++) {
 			$("<li>").appendTo("ol#play_list")
 					.text(data[i].name.split(".").slice(0, -1).join("."))
+					.prop("MName", data[i].name.split(".").slice(0, -1).join("."))
 					.val(i + 1)
 					.click(() => { if (count != i || player.shuffle) start(i) });
 			$(`li[value=${i +1}]`).prop({ MTitle: "", MArtist: "", MAlbum: "", MYear: "", MComment: "", MTrack: "", MGenre: "", MLyrics: "", Ready: false});
@@ -365,13 +366,14 @@ $(() => {
 		$(`li[value=${ $(e.target).val() }]`).click();
 		$(e.target).blur();
 	});
+	$("select#search_detail").change((e) => $("input#search").trigger("input") );
 	$("input#search").on("input", e => {
 		if ($(e.target).val() == "") {
 			$("ol#play_list li").show();
 		} else {
 			$("ol#play_list li").hide();
 			$.each($("ol#play_list li"), (ind, val) => {
-				if (($(val).text().toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show();
+				if (($(val).prop($("select#search_detail").val()).toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show();
 			})
 		}
 	}).change(e => $(e.target).blur());
