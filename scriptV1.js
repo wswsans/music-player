@@ -79,37 +79,24 @@ const start = (ct) => {
 	document.title = `▷ ${$(`li[value=${ct +1}]`).text()}`;
 	$("input#list_track").val(ct +1);
 	// ファイルデータ
-	$("img#switch_img").prop("artdata", "./image/no_image.png");
-	$("span#description").html("Title: <br>Artist: <br>Album: <br>Year: <br>Comment: <br>Track: <br>Genre: <br>");
-	$("span#lyrics").html("Lyrics: <br>");
-	const mediaTag = window.jsmediatags;
-	mediaTag.read(data[ct], {
-		onSuccess: function(res) {
-			let pic = "";
-			let base64String = "";
-			pic = res.tags.picture;
-			if (pic) {
-				base64String = "";
-				for (let i = 0; i < pic.data.length; i++) base64String += String.fromCharCode(pic.data[i]);
-				$("img#switch_img").prop("artdata", `data:${pic.format};base64,${window.btoa(base64String)}`).click().click();
-			} else { $("img#switch_img").click().click() };
-			$("span#description").html(`Title: ${(res.tags.title) ? res.tags.title : ""}<br>` +
-										`Artist: ${(res.tags.artist) ? res.tags.artist : ""}<br>` +
-										`Album: ${(res.tags.album) ? res.tags.album : ""}<br>` +
-										`Year: ${(res.tags.year) ? res.tags.year : ""}<br>` +
-										`Comment: ${(res.tags.comment && res.tags.comment.text != "0") ? res.tags.comment.text : ""}<br>` +
-										`Track: ${(res.tags.track) ? res.tags.track : ""}<br>` +
-										`Genre: ${(res.tags.genre) ? res.tags.genre : ""}<br>`);
-			let tmp = (res.tags.lyrics) ? res.tags.lyrics : "";
-			if (typeof tmp == "object") tmp = tmp.lyrics;
-			tmp = tmp.replace(/\n|\r/g, "<br>");
-			$("span#lyrics").html(`Lyrics: <br>${tmp}<br>`);
-		},
-		onError: (error) => {
-			console.log("Error", error.info);
-			$("img#switch_img").click().click();
+	let MediaTagWaiting = () => setTimeout(() => {
+		if ($(`li[value=${ct +1}]`).prop("Ready")) {
+			$("img#switch_img").prop("artdata", $(`li[value=${ct +1}]`).prop("artdata")).click().click();
+			$("span#description").html(`
+				Title: ${$(`li[value=${ct +1}]`).prop("MTitle")}<br>
+				Artist: ${$(`li[value=${ct +1}]`).prop("MArtist")}<br>
+				Album: ${$(`li[value=${ct +1}]`).prop("MAlbum")}<br>
+				Year: ${$(`li[value=${ct +1}]`).prop("MYear")}<br>
+				Comment: ${$(`li[value=${ct +1}]`).prop("MComment")}<br>
+				Track: ${$(`li[value=${ct +1}]`).prop("MTrack")}<br>
+				Genre: ${$(`li[value=${ct +1}]`).prop("MGenre")}<br>
+			`);
+			$("span#lyrics").html(`Lyrics: <br>${$(`li[value=${ct +1}]`).prop("MLyrics")}<br>`);
+		} else {
+			MediaTagWaiting()
 		}
-	});
+	}, 1);
+	MediaTagWaiting();
 	Notification.requestPermission().then((result) => {
 		if (result === 'granted' && $("button#notification").hasClass("btn_on")) {
 			setTimeout(() => {
@@ -179,14 +166,15 @@ $(() => {
 		player.pause();
 		$("button#pause").removeClass("btn_on");
 		$("section#player, table#lists").hide();
-		// $("switch").toggleClass("switch_on", false);
+		$("ol#play_list").html("");
 		if ($(e.target).val()) {
 			$("button#start").css("cursor", "pointer").show();
 		} else {
 			$("button#start").css("cursor", "not-allowed").hide();
 		};
 		// リストにまとめる
-		data = $("input#play_data").prop("files");
+		const mediaTag = window.jsmediatags;
+		data = $(e.target).prop("files");
 		$("input#list_track").prop("max", data.length);
 		$("ol#play_list").html("");
 		for (let i=0; i<data.length; i++) {
@@ -194,6 +182,39 @@ $(() => {
 					.text(data[i].name.split(".").slice(0, -1).join("."))
 					.val(i + 1)
 					.click(() => { if (count != i || player.shuffle) start(i) });
+			$(`li[value=${i +1}]`).prop({ MTitle: "", MArtist: "", MAlbum: "", MYear: "", MComment: "", MTrack: "", MGenre: "", MLyrics: "", Ready: false});
+			mediaTag.read(data[i], {
+				onSuccess: function(res) {
+					let pic = "";
+					let base64String = "";
+					pic = res.tags.picture;
+					if (pic) {
+						base64String = "";
+						for (let n = 0; n < pic.data.length; n++) base64String += String.fromCharCode(pic.data[n]);
+						$(`li[value=${i +1}]`).prop("artdata", `data:${pic.format};base64,${window.btoa(base64String)}`);
+					} else {
+						$(`li[value=${i +1}]`).prop("artdata", "./image/no_image.png");
+					};
+					let tmp = (res.tags.lyrics) ? res.tags.lyrics : "";
+					if (typeof tmp == "object") tmp = tmp.lyrics;
+					tmp = tmp.replace(/\n|\r/g, "<br>");
+					$(`li[value=${i +1}]`).prop({
+						MTitle: ((res.tags.title) ? res.tags.title : ""),
+						MArtist: ((res.tags.artist) ? res.tags.artist : ""),
+						MAlbum: ((res.tags.album) ? res.tags.album : ""),
+						MYear: ((res.tags.year) ? res.tags.year : ""),
+						MComment: ( (res.tags.comment) ? ((typeof res.tags.comment == "object") ? res.tags.comment.text : res.tags.comment) : "" ),
+						MTrack: ((res.tags.track) ? res.tags.track : ""),
+						MGenre: ((res.tags.genre) ? res.tags.genre : ""),
+						MLyrics: tmp,
+						Ready: true
+					});
+				},
+				onError: (error) => {
+					console.log(`Num: ${i}, Error\n${error.info}`);
+					$(`li[value=${i +1}]`).prop({artdata: "./image/no_image.png", Ready: true});
+				}
+			});
 		};
 	});
 	$("button#start").click(e => {
