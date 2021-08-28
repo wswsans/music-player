@@ -3,6 +3,7 @@ console.log("scriptV1.js Loaded!");
 console.log((window.navigator.onLine) ? "Online" : "Offline");
 
 const player = new Audio();
+const mediaTag = window.jsmediatags;
 
 let started = false;
 let paused = false; // player.pausedがあるが, button#startで強制的にpausedをはずさないといけないが, 外せないのでオリジナルを作ることにしている
@@ -75,7 +76,7 @@ const start = (ct) => {
 	// ロードが終わったらやりたいもの
 	count = ct;
 	$("li").css("border", "1px dotted #000");
-	$(`li[value=${ct +1}]`).css("border", "thick double #000");
+	$(`li[value=${ct +1}]`).css("border", "thick double #000").get(0).scrollIntoView(true);
 	document.title = `▷ ${$(`li[value=${ct +1}]`).text()}`;
 	$("input#list_track").val(ct +1);
 	// ファイルデータ
@@ -173,7 +174,6 @@ $(() => {
 			$("button#start").css("cursor", "not-allowed").hide();
 		};
 		// リストにまとめる
-		const mediaTag = window.jsmediatags;
 		data = $(e.target).prop("files");
 		$("input#list_track").prop("max", data.length);
 		$("ol#play_list").html("");
@@ -471,6 +471,9 @@ $(() => {
 				break;
 			case "KeyI":
 				$("div#switch").click();
+				break;
+			case "KeyF":
+				$(`li[value=${count +1}]`).get(0).scrollIntoView(true);
 				break;
 		};
 		if (event.code.slice(0, -1) == "Digit") {
