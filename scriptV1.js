@@ -231,6 +231,7 @@ $(() => {
 		$(e.target).hide();
 	});
 	$("button#reset").click(e => {
+		$("*").blur()
 		// clickして逆になるので想像と逆の変数設定を
 		player.loop = true;
 		player.shuffle = true;

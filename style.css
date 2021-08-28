@@ -115,6 +115,9 @@ img#mouse {
 td#detail {
 	width: 330px;
 }
+div#lyrics_div {
+	width:  330px;
+}
 /* トラック  */
 input#list_track {
 	width: 40px;
