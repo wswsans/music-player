@@ -99,7 +99,7 @@ const start = (ct) => {
 	}, 1);
 	MediaTagWaiting();
 	Notification.requestPermission().then((result) => {
-		if (result === 'granted' && $("button#notification").hasClass("btn_on")) {
+		if (result === 'granted' && $("button#notification").hasClass("btn_on") && !document.hasFocus()) {
 			setTimeout(() => {
 				Push.create($(`li[value=${count +1}]`).text(), {
 					body: "Play",
