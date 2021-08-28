@@ -6,7 +6,7 @@
 *:focus {
 	outline: none;
 }
-button, label, br, img {
+button, label, br, img, li {
   -webkit-touch-callout: none; /* iOS Safari */
 	-webkit-user-select: none; /* Safari */
 	 -khtml-user-select: none; /* Konqueror HTML */
