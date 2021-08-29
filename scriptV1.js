@@ -306,6 +306,9 @@ $(() => {
 				if (started && yn && !$("li.playing").hasClass("showed"))
 					$("li.showed").get(0).click();
 				break;
+			case "reverse":
+				yn = !$(e.target).hasClass("btn_on");
+				$("ol#play_list").html($("li").get().reverse());
 		};
 		(yn) ? $(e.target).addClass("btn_on") : $(e.target).removeClass("btn_on");
 	});
@@ -351,10 +354,10 @@ $(() => {
 		$(e.target).blur();
 	});
 	window.setInterval(() => {
-		$("span#lyrics").parent().height(window.innerHeight -534);
+		$("span#lyrics").parent().height(window.innerHeight -533);
 		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
 		$("button.time.next").css("marginRight", 200 -82 -$("input.time.show").width());
-		$("ol#play_list").height(window.innerHeight -155);
+		// $("ol#play_list").height(window.innerHeight -175);
 		if (!player.duration) return;
 		// durationが必要
 		duration = Math.floor(player.duration *10) /10;
@@ -393,20 +396,44 @@ $(() => {
 				if (($(val).prop($("select.search.selector").val()).toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show().addClass("showed");
 			})
 		}
-	}).change(e => $(e.target).blur());
+		if (started && $("button#showed_only").hasClass("btn_on") && !$("li.playing").hasClass("showed") && $("li.showed").length > 0)
+			$("li.showed").get(0).click();
+	}).change(e => $(e.target).blur() );
 	// ソート
 	$("select.sort.selector").change(e => {
 		let tmp = $("ol#play_list").children().get()
 		tmp.sort(function (a, b) {
-			let nameA = String($(a).prop( $("select.sort.selector").val() )).toLowerCase()
-			let nameB = String($(b).prop( $("select.sort.selector").val() )).toLowerCase()
+			let nameA = $(a).prop( $("select.sort.selector").val() )
+			let nameB = $(b).prop( $("select.sort.selector").val() )
+			switch ($(e.target).val()) {
+				// 文字
+				case "MName":
+				case "MTitle":
+				case "MArtist":
+				case "MAlbum":
+				case "MComment":
+				case "MGenre":
+				case "MLyrics":
+					nameA = String(nameA).toLowerCase();
+					nameB = String(nameB).toLowerCase();
+					break;
+				// 数字
+				case "MTrack":
+					nameA = String(nameA).replace(/\/(.*)/, "");
+					nameB = String(nameB).replace(/\/(.*)/, "");
+				case "value":
+				case "MYear":
+					nameA = parseFloat(nameA);
+					nameB = parseFloat(nameB);
+					break;
+			}
 			if (nameA < nameB) { return -1 }
 			if (nameA > nameB) { return 1 }
 			return 0;
 		});
 		$("ol#play_list").html("");
 		tmp.forEach((val, ind) => $(val).appendTo("ol#play_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
-	})
+	});
 	// 曲終了
 	$(player).on("ended", () => {
 		if (!player.loop) {
@@ -453,7 +480,11 @@ $(() => {
 				$("button#notification").click();
 				break;
 			case "KeyR":
-				$("button#reset").click();
+				if (event.shiftKey){
+					$("button#reset").click();
+				} else {
+					$("button#reverse").click();
+				}
 				break;
 			case "KeyA":
 				$("button.audio.back").click();
@@ -498,6 +529,8 @@ $(() => {
 			case "KeyI":
 				$("div#switch").click();
 				break;
+			case "KeyO":
+				$("button#showed_only").click();
 			case "KeyF":
 				$(`li.playing`).get(0).scrollIntoView(true);
 				break;
