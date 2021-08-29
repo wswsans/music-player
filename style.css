@@ -62,6 +62,7 @@ button {
 	background-color: #EFEFEF;
 	width: 35px;
 	height: 25px;
+	cursor: pointer;
 }
 button.btn_on {
 	background-color: #CCCCCC;

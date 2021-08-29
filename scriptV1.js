@@ -238,7 +238,7 @@ $(() => {
 		player.shuffle = true;
 		PreservesPitch(false);
 		player.muted = true;
-		$("button#notification, button#showed_only").addClass("btn_on");
+		$("button#notification, button#showed_only, button#reverse").addClass("btn_on");
 		$("button.on_off").not("button#pause").click();
 		// 真ん中
 		$("input.range").slice(0, -1).val(1).trigger("input");
@@ -354,10 +354,10 @@ $(() => {
 		$(e.target).blur();
 	});
 	window.setInterval(() => {
-		$("span#lyrics").parent().height(window.innerHeight -533);
+		$("span#lyrics").parent().height(window.innerHeight -534);
 		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
 		$("button.time.next").css("marginRight", 200 -82 -$("input.time.show").width());
-		// $("ol#play_list").height(window.innerHeight -175);
+		$("ol#play_list").height(window.innerHeight -165);
 		if (!player.duration) return;
 		// durationが必要
 		duration = Math.floor(player.duration *10) /10;
@@ -432,6 +432,7 @@ $(() => {
 			return 0;
 		});
 		$("ol#play_list").html("");
+		if ($("button#reverse").hasClass("btn_on")) tmp.reverse();
 		tmp.forEach((val, ind) => $(val).appendTo("ol#play_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
 	});
 	// 曲終了
