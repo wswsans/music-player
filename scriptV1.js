@@ -75,23 +75,23 @@ const start = (ct) => {
 	// ロードが終わったらやりたいもの
 	count = ct;
 	$("li").css("border", "1px dotted #000").removeClass("playing");
-	$(`li[value=${ct +1}]`).css("border", "thick double #000").addClass("playing");
-	document.title = `▷ ${$(`li[value=${ct +1}]`).text()}`;
+	$("li.playing").css("border", "thick double #000").addClass("playing");
+	document.title = `▷ ${$("li.playing").text()}`;
 	$("input#list_track").val(ct +1);
 	// ファイルデータ
 	let MediaTagWaiting = () => setTimeout(() => {
-		if ($(`li[value=${ct +1}]`).prop("Ready")) {
-			$("img#switch_img").prop("artdata", $(`li[value=${ct +1}]`).prop("artdata")).click().click();
+		if ($("li.playing").prop("Ready")) {
+			$("img#switch_img").prop("artdata", $("li.playing").prop("artdata")).click().click();
 			$("span#description").html(`
-				Title: ${$(`li[value=${ct +1}]`).prop("MTitle")}<br>
-				Artist: ${$(`li[value=${ct +1}]`).prop("MArtist")}<br>
-				Album: ${$(`li[value=${ct +1}]`).prop("MAlbum")}<br>
-				Year: ${$(`li[value=${ct +1}]`).prop("MYear")}<br>
-				Comment: ${$(`li[value=${ct +1}]`).prop("MComment")}<br>
-				Track: ${$(`li[value=${ct +1}]`).prop("MTrack")}<br>
-				Genre: ${$(`li[value=${ct +1}]`).prop("MGenre")}<br>
+				Title: ${$("li.playing").prop("MTitle")}<br>
+				Artist: ${$("li.playing").prop("MArtist")}<br>
+				Album: ${$("li.playing").prop("MAlbum")}<br>
+				Year: ${$("li.playing").prop("MYear")}<br>
+				Comment: ${$("li.playing").prop("MComment")}<br>
+				Track: ${$("li.playing").prop("MTrack")}<br>
+				Genre: ${$("li.playing").prop("MGenre")}<br>
 			`);
-			$("span#lyrics").html(`Lyrics: <br>${$(`li[value=${ct +1}]`).prop("MLyrics")}<br>`);
+			$("span#lyrics").html(`Lyrics: <br>${$("li.playing").prop("MLyrics")}<br>`);
 		} else {
 			MediaTagWaiting()
 		}
@@ -100,7 +100,7 @@ const start = (ct) => {
 	Notification.requestPermission().then((result) => {
 		if (result === 'granted' && $("button#notification").hasClass("btn_on") && !document.hasFocus()) {
 			setTimeout(() => {
-				Push.create($(`li[value=${count +1}]`).text(), {
+				Push.create($("li.playing").text(), {
 					body: "Play",
 					icon: $("img#switch_img").prop("artdata"),
 					timeout: 5000,
@@ -280,7 +280,7 @@ $(() => {
 			case "pause":
 				if(!started) return;
 				(paused) ? player.play() : player.pause();
-				document.title = `${(paused) ? "▷" : "| |"} ${$(`li[value=${count +1}]`).text()}`;
+				document.title = `${(paused) ? "▷" : "| |"} ${$("li.playing").text()}`;
 				yn = !paused
 				break;
 			case "loop":
@@ -484,7 +484,7 @@ $(() => {
 				$("div#switch").click();
 				break;
 			case "KeyF":
-				$(`li[value=${count +1}]`).get(0).scrollIntoView(true);
+				$(`li.playing`).get(0).scrollIntoView(true);
 				break;
 		};
 		if (event.code.slice(0, -1) == "Digit") {
