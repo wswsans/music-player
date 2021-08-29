@@ -308,7 +308,10 @@ $(() => {
 		};
 		(yn) ? $(e.target).addClass("btn_on") : $(e.target).removeClass("btn_on");
 	});
-	$("button#shuffle_btn").click(() => { if (player.shuffle) $(`li[value=${ Math.floor(Math.random() * (data.length)) +1 }]`).click().get(0).scrollIntoView(true) });
+	$("button#shuffle_btn").click(() => { if (player.shuffle) {
+		let tmp = $("li" + (($("button#showed_only").hasClass("btn_on")) ? ".showed" : ""))
+		$( tmp.get(Math.floor(Math.random() * tmp.length)) ).click().get(0).scrollIntoView(true) 
+	}});
 	// 速度
 	$("input.speed.range").on("input", e => $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = $(e.target).val());
 	// 音量
@@ -392,11 +395,8 @@ $(() => {
 	// 曲終了
 	$(player).on("ended", () => {
 		if (!player.loop) {
-			if (player.shuffle) {
-				$(`li[value=${ Math.floor(Math.random() * (data.length)) +1 }]`).click().get(0).scrollIntoView(true);
-			} else {
-				$("button.audio.next").click();
-			};
+			if (player.shuffle) $("button#shuffle_btn").click()
+			else $("button.audio.next").click();
 		};
 	});
 	$(player).on("pause", () => (player.ended) ? "" : paused = true);
