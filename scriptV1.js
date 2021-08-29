@@ -74,8 +74,8 @@ const start = (ct) => {
 	};
 	// ロードが終わったらやりたいもの
 	count = ct;
-	$("li").css("border", "1px dotted #000");
-	$(`li[value=${ct +1}]`).css("border", "thick double #000");
+	$("li").css("border", "1px dotted #000").removeClass("playing");
+	$(`li[value=${ct +1}]`).css("border", "thick double #000").addClass("playing");
 	document.title = `▷ ${$(`li[value=${ct +1}]`).text()}`;
 	$("input#list_track").val(ct +1);
 	// ファイルデータ
@@ -176,15 +176,16 @@ $(() => {
 		data = $(e.target).prop("files");
 		$("input#list_track").prop("max", data.length);
 		$("ol#play_list").html("");
-		for (let i=0; i<data.length; i++) {
+		Object.values(data).forEach((val, i) => {
 			$("<li>").appendTo("ol#play_list")
-					.text(data[i].name.split(".").slice(0, -1).join("."))
-					.prop("MName", data[i].name.split(".").slice(0, -1).join("."))
+					.text(val.name.split(".").slice(0, -1).join("."))
+					.prop("MName", val.name.split(".").slice(0, -1).join("."))
 					.val(i + 1)
+					.addClass("showed")
 					.click(() => { if (count != i || player.shuffle) start(i) });
 			$(`li[value=${i +1}]`).prop({ MTitle: "", MArtist: "", MAlbum: "", MYear: "", MComment: "", MTrack: "", MGenre: "", MLyrics: "", Ready: false});
 			const mediaTag = window.jsmediatags;
-			mediaTag.read(data[i], {
+			mediaTag.read(val, {
 				onSuccess: function(res) {
 					let pic = "";
 					let base64String = "";
@@ -216,7 +217,7 @@ $(() => {
 					$(`li[value=${i +1}]`).prop({artdata: "./image/no_image.png", Ready: true});
 				}
 			});
-		};
+		});
 	});
 	$("button#start").click(e => {
 		if (waiting) return;
@@ -237,10 +238,12 @@ $(() => {
 		player.shuffle = true;
 		PreservesPitch(false);
 		player.muted = true;
-		$("button#notification").addClass("btn_on");
+		$("button#notification, button#showed_only").addClass("btn_on");
 		$("button.on_off").not("button#pause").click();
+		// 真ん中
 		$("input.range").slice(0, -1).val(1).trigger("input");
 		$("input.time.show").val(5).change();
+		// 下
 		$("img#switch_img").removeClass("album_art").addClass("face").click();
 		$("select#search_detail").val("MName");
 		$("input#search").val("").trigger("input");
@@ -249,9 +252,22 @@ $(() => {
 	// 曲
 	$("button.audio").click(e => {
 		if (waiting) return;
-		count += {next: 1, back: -1}[e.target.className.split(" ")[1]]
-		if (count < 0) count = data.length -1;
-		if (data.length -1 < count) count = 0;
+		let tmp = {
+			tag: "li" + (($("button#showed_only").hasClass("btn_on")) ? ".showed" : ""),
+			num: null
+		};
+		$(tmp.tag).each((ind, val) => { if ($(val).hasClass("playing")) tmp.num = ind });
+		switch (e.target.className.split(" ")[1]) {
+			case "next":
+				count = $(tmp.tag).get(tmp.num +1)
+				if (count == undefined) count = $(tmp.tag).first();
+				break;
+			case "back":
+				count = $(tmp.tag).get(tmp.num -1)
+				if (count == undefined) count = $(tmp.tag).last();
+				break;
+		}
+		count = $(count).val() -1
 		start(count);
 	});
 	// 一時停止, ループ, シャッフル, ピッチ, ミュート 
@@ -259,7 +275,7 @@ $(() => {
 		let yn = null;
 		switch (e.target.id) {
 			case "notification":
-				yn = !$(e.target).hasClass("btn_on")
+				yn = !$(e.target).hasClass("btn_on");
 				break;
 			case "pause":
 				if(!started) return;
@@ -283,6 +299,11 @@ $(() => {
 				player.muted = !player.muted;
 				$("input.volume").val((player.muted) ? 0 : player.volume);
 				yn = !player.muted;
+				break;
+			case "showed_only":
+				yn = !$(e.target).hasClass("btn_on");
+				if (started && yn && !$("li.playing").hasClass("showed"))
+					$("li.showed").get(0).click();
 				break;
 		};
 		(yn) ? $(e.target).addClass("btn_on") : $(e.target).removeClass("btn_on");
@@ -351,34 +372,23 @@ $(() => {
 			$("img#mouse").show();
 		}
 	});
-	// 曲リスト
-	$("input#list_track").change(e => {
-		if ($(e.target).val() == "") $(e.target).val(count +1);
-		if ($(e.target).val() < 0) {
-			if (0 < 1 +data.length +parseInt($(e.target).val())) {
-				$(e.target).val(1 +data.length +parseInt($(e.target).val()))
-			} else {
-				$(e.target).val(1)
-			}
-		} else if ($(e.target).val() == 0) {
-			$(e.target).val(1)
-		} else if (data.length <= $(e.target).val()) {
-			$(e.target).val(data.length);
-		}
-		$(`li[value=${ $(e.target).val() }]`).click();
-		$(e.target).blur();
-	});
 	$("select#search_detail").change((e) => $("input#search").trigger("input") );
 	$("input#search").on("input", e => {
 		if ($(e.target).val() == "") {
-			$("ol#play_list li").show().removeClass("searched");
+			$("ol#play_list li").show().addClass("showed");
 		} else {
-			$("ol#play_list li").hide();
-			$.each($("ol#play_list li"), (ind, val) => {
-				if (($(val).prop($("select#search_detail").val()).toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show().addClass("searched");
+			$("ol#play_list li").hide().removeClass("showed").each((ind, val) => {
+				if (($(val).prop($("select#search_detail").val()).toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show().addClass("showed");
 			})
 		}
 	}).change(e => $(e.target).blur());
+	// 曲リスト
+	$("input#list_track").change(e => {
+		if ($(e.target).val() == "") $(e.target).val(count +1);
+		if ($("li").get($(e.target).val() -1) == undefined) $(e.target).val(1)
+		$(`li[value=${ $(e.target).val() }]`).click();
+		$(e.target).blur();
+	});
 	// 曲終了
 	$(player).on("ended", () => {
 		if (!player.loop) {
