@@ -308,7 +308,8 @@ $(() => {
 				break;
 			case "reverse":
 				yn = !$(e.target).hasClass("btn_on");
-				$("ol#play_list").html($("li").get().reverse());
+				let tmp = $("li").get().reverse();
+				tmp.forEach((val, ind) => $(val).appendTo("ol#play_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
 		};
 		(yn) ? $(e.target).addClass("btn_on") : $(e.target).removeClass("btn_on");
 	});
