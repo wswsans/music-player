@@ -3,7 +3,6 @@ console.log("scriptV1.js Loaded!");
 console.log((window.navigator.onLine) ? "Online" : "Offline");
 
 const player = new Audio();
-const mediaTag = window.jsmediatags;
 
 let started = false;
 let paused = false; // player.pausedがあるが, button#startで強制的にpausedをはずさないといけないが, 外せないのでオリジナルを作ることにしている
@@ -76,7 +75,7 @@ const start = (ct) => {
 	// ロードが終わったらやりたいもの
 	count = ct;
 	$("li").css("border", "1px dotted #000");
-	$(`li[value=${ct +1}]`).css("border", "thick double #000").get(0).scrollIntoView(true);
+	$(`li[value=${ct +1}]`).css("border", "thick double #000");
 	document.title = `▷ ${$(`li[value=${ct +1}]`).text()}`;
 	$("input#list_track").val(ct +1);
 	// ファイルデータ
@@ -184,6 +183,7 @@ $(() => {
 					.val(i + 1)
 					.click(() => { if (count != i || player.shuffle) start(i) });
 			$(`li[value=${i +1}]`).prop({ MTitle: "", MArtist: "", MAlbum: "", MYear: "", MComment: "", MTrack: "", MGenre: "", MLyrics: "", Ready: false});
+			const mediaTag = window.jsmediatags;
 			mediaTag.read(data[i], {
 				onSuccess: function(res) {
 					let pic = "";
@@ -220,7 +220,7 @@ $(() => {
 	});
 	$("button#start").click(e => {
 		if (waiting) return;
-		if (!$("input#play_data")[0].files.length || $("button#start").css("display") == "none") {
+		if (!data.length || $("button#start").css("display") == "none") {
 			console.log("Nothing");
 			return;
 		};
@@ -287,7 +287,7 @@ $(() => {
 		};
 		(yn) ? $(e.target).addClass("btn_on") : $(e.target).removeClass("btn_on");
 	});
-	$("button#shuffle_btn").click(() => { if (player.shuffle) $(`li[value=${ Math.floor(Math.random() * (data.length)) +1 }]`).click() });
+	$("button#shuffle_btn").click(() => { if (player.shuffle) $(`li[value=${ Math.floor(Math.random() * (data.length)) +1 }]`).click().get(0).scrollIntoView(true) });
 	// 速度
 	$("input.speed.range").on("input", e => $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = $(e.target).val());
 	// 音量
@@ -371,11 +371,11 @@ $(() => {
 	$("select#search_detail").change((e) => $("input#search").trigger("input") );
 	$("input#search").on("input", e => {
 		if ($(e.target).val() == "") {
-			$("ol#play_list li").show();
+			$("ol#play_list li").show().removeClass("searched");
 		} else {
 			$("ol#play_list li").hide();
 			$.each($("ol#play_list li"), (ind, val) => {
-				if (($(val).prop($("select#search_detail").val()).toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show();
+				if (($(val).prop($("select#search_detail").val()).toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show().addClass("searched");
 			})
 		}
 	}).change(e => $(e.target).blur());
@@ -383,7 +383,7 @@ $(() => {
 	$(player).on("ended", () => {
 		if (!player.loop) {
 			if (player.shuffle) {
-				$(`li[value=${ Math.floor(Math.random() * (data.length)) +1 }]`).click();
+				$(`li[value=${ Math.floor(Math.random() * (data.length)) +1 }]`).click().get(0).scrollIntoView(true);
 			} else {
 				$("button.audio.next").click();
 			};
