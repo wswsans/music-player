@@ -308,8 +308,6 @@ $(() => {
 				break;
 			case "reverse":
 				yn = !$(e.target).hasClass("btn_on");
-				let tmp = $("li").get().reverse();
-				tmp.forEach((val, ind) => $(val).appendTo("ol#play_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
 		};
 		(yn) ? $(e.target).addClass("btn_on") : $(e.target).removeClass("btn_on");
 	});
@@ -359,6 +357,42 @@ $(() => {
 		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
 		$("button.time.next").css("marginRight", 200 -82 -$("input.time.show").width());
 		$("ol#play_list").height(window.innerHeight -165);
+		if (!started) return;
+		// ソート
+		let tmp = $("ol#play_list").children().get()
+		tmp.sort(function (a, b) {
+			let nameA = $(a).prop( $("select.sort.selector").val() )
+			let nameB = $(b).prop( $("select.sort.selector").val() )
+			switch ($("select.sort.selector").val()) {
+				// 文字
+				case "MName":
+				case "MTitle":
+				case "MArtist":
+				case "MAlbum":
+				case "MComment":
+				case "MGenre":
+				case "MLyrics":
+					nameA = String(nameA).toLowerCase();
+					nameB = String(nameB).toLowerCase();
+					break;
+				// 数字
+				case "MTrack":
+					nameA = String(nameA).replace(/\/(.*)/, "");
+					nameB = String(nameB).replace(/\/(.*)/, "");
+				case "value":
+				case "MYear":
+					nameA = parseFloat(nameA);
+					nameB = parseFloat(nameB);
+					break;
+			}
+			if (nameA < nameB) { return -1 }
+			if (nameA > nameB) { return 1 }
+			return 0;
+		});
+		// ソート結果 & リバース
+		$("ol#play_list").html("");
+		if ($("button#reverse").hasClass("btn_on")) tmp.reverse();
+		tmp.forEach((val, ind) => $(val).appendTo("ol#play_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
 		if (!player.duration) return;
 		// durationが必要
 		duration = Math.floor(player.duration *10) /10;
@@ -366,7 +400,7 @@ $(() => {
 		$("input.seek.range").val(Math.floor(player.currentTime *10) /10);
 		$("input.seek.show").width(`${duration *10}`.length *10);
 		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
-	}, 10);
+	}, 50);
 	// アルバムアートと顔のスイッチ
 	$("div#switch").click(e => {
 		$("img#switch_img").toggleClass("album_art").toggleClass("face");
@@ -400,42 +434,6 @@ $(() => {
 		if (started && $("button#showed_only").hasClass("btn_on") && !$("li.playing").hasClass("showed") && $("li.showed").length > 0)
 			$("li.showed").get(0).click();
 	}).change(e => $(e.target).blur() );
-	// ソート
-	$("select.sort.selector").change(e => {
-		let tmp = $("ol#play_list").children().get()
-		tmp.sort(function (a, b) {
-			let nameA = $(a).prop( $("select.sort.selector").val() )
-			let nameB = $(b).prop( $("select.sort.selector").val() )
-			switch ($(e.target).val()) {
-				// 文字
-				case "MName":
-				case "MTitle":
-				case "MArtist":
-				case "MAlbum":
-				case "MComment":
-				case "MGenre":
-				case "MLyrics":
-					nameA = String(nameA).toLowerCase();
-					nameB = String(nameB).toLowerCase();
-					break;
-				// 数字
-				case "MTrack":
-					nameA = String(nameA).replace(/\/(.*)/, "");
-					nameB = String(nameB).replace(/\/(.*)/, "");
-				case "value":
-				case "MYear":
-					nameA = parseFloat(nameA);
-					nameB = parseFloat(nameB);
-					break;
-			}
-			if (nameA < nameB) { return -1 }
-			if (nameA > nameB) { return 1 }
-			return 0;
-		});
-		$("ol#play_list").html("");
-		if ($("button#reverse").hasClass("btn_on")) tmp.reverse();
-		tmp.forEach((val, ind) => $(val).appendTo("ol#play_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
-	});
 	// 曲終了
 	$(player).on("ended", () => {
 		if (!player.loop) {
