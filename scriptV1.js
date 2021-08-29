@@ -75,7 +75,7 @@ const start = (ct) => {
 	// ロードが終わったらやりたいもの
 	count = ct;
 	$("li").css("border", "1px dotted #000").removeClass("playing");
-	$("li.playing").css("border", "thick double #000").addClass("playing");
+	$(`li[value=${ct +1}]`).css("border", "thick double #000").addClass("playing");
 	document.title = `▷ ${$("li.playing").text()}`;
 	$("input#list_track").val(ct +1);
 	// ファイルデータ
@@ -182,7 +182,7 @@ $(() => {
 					.prop("MName", val.name.split(".").slice(0, -1).join("."))
 					.val(i + 1)
 					.addClass("showed")
-					.click(() => { if (count != i || player.shuffle) start(i) });
+					.click(e => { if (count != i || player.shuffle) start(i) });
 			$(`li[value=${i +1}]`).prop({ MTitle: "", MArtist: "", MAlbum: "", MYear: "", MComment: "", MTrack: "", MGenre: "", MLyrics: "", Ready: false});
 			const mediaTag = window.jsmediatags;
 			mediaTag.read(val, {
@@ -245,8 +245,9 @@ $(() => {
 		$("input.time.show").val(5).change();
 		// 下
 		$("img#switch_img").removeClass("album_art").addClass("face").click();
-		$("select#search_detail").val("MName");
-		$("input#search").val("").trigger("input");
+		$("select.search.selector").val("MName");
+		$("input.search.text").val("").trigger("input");
+		$("select.sort.selector").val("value").change();
 		if (window.navigator.platform.slice(0, 3) == "Win") $("input.volume").val(0.5).trigger("input");
 	});
 	// 曲
@@ -257,7 +258,7 @@ $(() => {
 			num: null
 		};
 		$(tmp.tag).each((ind, val) => { if ($(val).hasClass("playing")) tmp.num = ind });
-		switch (e.target.className.split(" ")[1]) {
+		switch (e.target.classList[1]) {
 			case "next":
 				count = $(tmp.tag).get(tmp.num +1)
 				if (count == undefined) count = $(tmp.tag).first();
@@ -322,12 +323,12 @@ $(() => {
 	});
 	// 速度, 音量 共通
 	$("input.show.similar_num").change(e => {
-		if ($(e.target).val() == "") $(e.target).val({speed: 1, volume: 1}[e.target.className.split(" ")[0]]);
-		$(`input.${e.target.className.split(" ")[0]}.range`).val($(e.target).val()).trigger("input");
+		if ($(e.target).val() == "") $(e.target).val({speed: 1, volume: 1}[e.target.classList[0]]);
+		$(`input.${e.target.classList[0]}.range`).val($(e.target).val()).trigger("input");
 		$(e.target).blur();
 	});
 	$("button.similar_btn").click(e => {
-		let classes = e.target.className.split(" ");
+		let classes = e.target.classList;
 		let code = {next: 1, back: -1}[classes[1]];
 		if (classes[0] == "time") {
 			player.currentTime += code * $("input.time.show").val();
@@ -350,10 +351,10 @@ $(() => {
 		$(e.target).blur();
 	});
 	window.setInterval(() => {
-		$("span#lyrics").parent().height(window.innerHeight -531);
+		$("span#lyrics").parent().height(window.innerHeight -534);
 		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
 		$("button.time.next").css("marginRight", 200 -82 -$("input.time.show").width());
-		$("ol#play_list").height(window.innerHeight -125);
+		$("ol#play_list").height(window.innerHeight -155);
 		if (!player.duration) return;
 		// durationが必要
 		duration = Math.floor(player.duration *10) /10;
@@ -375,16 +376,6 @@ $(() => {
 			$("img#mouse").show();
 		}
 	});
-	$("select#search_detail").change((e) => $("input#search").trigger("input") );
-	$("input#search").on("input", e => {
-		if ($(e.target).val() == "") {
-			$("ol#play_list li").show().addClass("showed");
-		} else {
-			$("ol#play_list li").hide().removeClass("showed").each((ind, val) => {
-				if (($(val).prop($("select#search_detail").val()).toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show().addClass("showed");
-			})
-		}
-	}).change(e => $(e.target).blur());
 	// 曲リスト
 	$("input#list_track").change(e => {
 		if ($(e.target).val() == "") $(e.target).val(count +1);
@@ -392,6 +383,30 @@ $(() => {
 		$(`li[value=${ $(e.target).val() }]`).click();
 		$(e.target).blur();
 	});
+	// 検索
+	$("select.search.selector").change(e => $("input.search.text").trigger("input") );
+	$("input.search.text").on("input", e => {
+		if ($(e.target).val() == "") {
+			$("ol#play_list li").show().addClass("showed");
+		} else {
+			$("ol#play_list li").hide().removeClass("showed").each((ind, val) => {
+				if (($(val).prop($("select.search.selector").val()).toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show().addClass("showed");
+			})
+		}
+	}).change(e => $(e.target).blur());
+	// ソート
+	$("select.sort.selector").change(e => {
+		let tmp = $("ol#play_list").children().get()
+		tmp.sort(function (a, b) {
+			let nameA = String($(a).prop( $("select.sort.selector").val() )).toLowerCase()
+			let nameB = String($(b).prop( $("select.sort.selector").val() )).toLowerCase()
+			if (nameA < nameB) { return -1 }
+			if (nameA > nameB) { return 1 }
+			return 0;
+		});
+		$("ol#play_list").html("");
+		tmp.forEach((val, ind) => $(val).appendTo("ol#play_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
+	})
 	// 曲終了
 	$(player).on("ended", () => {
 		if (!player.loop) {

@@ -122,7 +122,7 @@ div#lyrics_div {
 input#list_track {
 	width: 40px;
 }
-input#search {
+input.search.text {
 	width: 100px;
 }
 /* プレイリスト  */

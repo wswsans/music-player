@@ -107,6 +107,9 @@
 					<td>アルバムアートとリップシンクを切り替える</td>
 				</tr>
 				<tr>
+					<th>P</th>
+					<td>表示されている曲のみ再生</td>
+				<tr>
 					<th>F</th>
 					<td>今再生しているファイルまでスクロールする</td>
 				</tr>
@@ -167,7 +170,7 @@
 				<td valign="top">
 					<span>Track: </span><input id="list_track" value="1" type="number" min="1" step="1">
 					<span>Search: </span>
-					<select id="search_detail">
+					<select class="search selector">
 						<option value="MName" selected>FileName</option>
 						<option value="MTitle">Title</option>
 						<option value="MArtist">Artist</option>
@@ -178,8 +181,22 @@
 						<option value="MGenre">Genre</option>
 						<option value="MLyrics">Lyrics</option>
 					</select>
-					<input id="search" type="text">
+					<input class="search text" type="text">
 					<button class="on_off" id="showed_only">▶︎≡</button>
+					<br>
+					<span>Sort: </span>
+					<select class="sort selector">
+						<option value="value" selected>None</option>
+						<option value="MName">FileName</option>
+						<option value="MTitle">Title</option>
+						<option value="MArtist">Artist</option>
+						<option value="MAlbum">Album</option>
+						<option value="MYear">Year</option>
+						<option value="MComment">Comment</option>
+						<option value="MTrack">Track</option>
+						<option value="MGenre">Genre</option>
+						<option value="MLyrics">Lyrics</option>
+					</select>
 					<br>
 					<ol id="play_list"></ol>
 				</td>
