@@ -385,13 +385,12 @@ $(() => {
 					nameB = parseFloat(nameB);
 					break;
 			}
-			if (nameA < nameB) { return -1 }
-			if (nameA > nameB) { return 1 }
+			if (nameA < nameB) { return (($("button#reverse").hasClass("btn_on")) ? 1 : -1) }
+			if (nameA > nameB) { return (($("button#reverse").hasClass("btn_on")) ? -1 : 1) }
 			return 0;
 		});
 		// ソート結果 & リバース
 		$("ol#play_list").html("");
-		if ($("button#reverse").hasClass("btn_on")) tmp.reverse();
 		tmp.forEach((val, ind) => $(val).appendTo("ol#play_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
 		if (!player.duration) return;
 		// durationが必要
