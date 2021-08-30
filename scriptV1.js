@@ -3,6 +3,7 @@ console.log("scriptV1.js Loaded!");
 console.log((window.navigator.onLine) ? "Online" : "Offline");
 
 const player = new Audio();
+var AudioContext = window.AudioContext || window.webkitAudioContext;
 
 let started = false;
 let paused = false; // player.pausedがあるが, button#startで強制的にpausedをはずさないといけないが, 外せないのでオリジナルを作ることにしている
@@ -16,6 +17,12 @@ let source = null;
 let analyser = null;
 let prevSpec = 0;
 let lipSyncInterval = null;
+// 逆再生
+const rev_context = new AudioContext();
+let rev_source = null;
+let Mbuffers = [];
+let cTime = 0;
+let rev_cTime = 0;
 
 player.preload = "metadata";
 
@@ -52,6 +59,22 @@ const syncLip = (spectrums) => {
 	$("img#mouse").attr("src", `./image/${imgName}`);
 	prevSpec = totalSpectrum;
 };
+const MReverser = (ct, start_time) => { // start_time: 逆再生ver
+	if (rev_source) {
+		rev_context.suspend().then(() => rev_context.resume());
+		rev_source.stop(0);
+		rev_source = null;
+		MReverser(ct, start_time);
+		return;
+	}
+	rev_source = rev_context.createBufferSource();
+	rev_source.buffer = Mbuffers[ct];
+	rev_source.playbackRate.value = parseFloat($("input.speed.range").val());
+	rev_source.connect(rev_context.destination);
+	rev_source.onended = () => rev_source.stop(0);
+	console.log(ct, start_time)
+	rev_source.start(0, start_time);
+}
 const start = (ct) => {
 	if (waiting) return;
 	waiting = true;
@@ -65,13 +88,33 @@ const start = (ct) => {
 		}, 100);
 	}
 	// ロード
-	const fReader = new FileReader();
-	fReader.readAsDataURL(data[ct]);
-	fReader.onloadend = (event) => {
-		player.src = event.target.result;
+	if ($(`li[value=${ct +1}]`).prop("MData")) {
+		player.src = $(`li[value=${ct +1}]`).prop("MData");
 		started = true;
-		if (!paused) player.play();
-	};
+		if (!paused && !$("button#MReverse").hasClass("btn_on")) player.play();
+	} else {
+		const fReader = new FileReader();
+		fReader.readAsDataURL(data[ct]);
+		fReader.onloadend = (event) => {
+			$(`li[value=${ct +1}]`).prop("MData", event.target.result);
+			player.src = event.target.result;
+			started = true;
+			if (!paused && !$("button#MReverse").hasClass("btn_on")) player.play();
+		};
+	}
+	// 逆再生用
+	if (rev_source) rev_source.stop(0);
+	if (!Mbuffers[ct]) {
+		const fReader = new FileReader();
+		fReader.readAsArrayBuffer(data[ct]);
+		fReader.onloadend = (event) => {
+			rev_context.decodeAudioData(event.target.result, (b) => {
+				let buffer = b;
+				for (let i=0;i<buffer.numberOfChannels;i++) buffer.getChannelData(i).reverse();
+				Mbuffers[ct] = buffer;
+			});
+		};
+	}
 	// ロードが終わったらやりたいもの
 	count = ct;
 	$("li").css("border", "1px dotted #000").removeClass("playing");
@@ -159,6 +202,7 @@ $(() => {
 		count = 0;
 		started = false;
 		waiting = false;
+		paused = false;
 		document.title = "Music Player";
 		$("button#reset").click();
 		player.currentTime = 0;
@@ -174,6 +218,7 @@ $(() => {
 		};
 		// リストにまとめる
 		data = $(e.target).prop("files");
+		for (let i = 0; i < data.length; i++) Mbuffers.push(undefined);
 		$("input#list_track").prop("max", data.length);
 		$("ol#play_list").html("");
 		Object.values(data).forEach((val, i) => {
@@ -183,7 +228,7 @@ $(() => {
 					.val(i + 1)
 					.addClass("showed")
 					.click(e => { if (count != i || player.shuffle) start(i) });
-			$(`li[value=${i +1}]`).prop({ MTitle: "", MArtist: "", MAlbum: "", MYear: "", MComment: "", MTrack: "", MGenre: "", MLyrics: "", Ready: false});
+			$(`li[value=${i +1}]`).prop({ MTitle: "", MArtist: "", MAlbum: "", MYear: "", MComment: "", MTrack: "", MGenre: "", MLyrics: "", Ready: false, MData: undefined});
 			const mediaTag = window.jsmediatags;
 			mediaTag.read(val, {
 				onSuccess: function(res) {
@@ -238,7 +283,7 @@ $(() => {
 		player.shuffle = true;
 		PreservesPitch(false);
 		player.muted = true;
-		$("button#notification, button#showed_only, button#reverse").addClass("btn_on");
+		$("button#notification, button#showed_only, button#reverse, button#MReverse").addClass("btn_on");
 		$("button.on_off").not("button#pause").click();
 		// 真ん中
 		$("input.range").slice(0, -1).val(1).trigger("input");
@@ -275,14 +320,26 @@ $(() => {
 	$("button.on_off").click(e => {
 		let yn = null;
 		switch (e.target.id) {
+			// 特別必要なコードがない
 			case "notification":
+			case "reverse":
 				yn = !$(e.target).hasClass("btn_on");
 				break;
 			case "pause":
 				if(!started) return;
-				(paused) ? player.play() : player.pause();
+				paused = !paused;
 				document.title = `${(paused) ? "▷" : "| |"} ${$("li.playing").text()}`;
-				yn = !paused
+				if (paused) {
+					if (rev_source) {
+						rev_context.suspend();
+						rev_source.stop(0);
+					}
+					player.pause();
+				} else {
+					if ($("button#MReverse").hasClass("btn_on")) MReverser(count, rev_cTime)
+					else player.play();
+				}
+				yn = paused
 				break;
 			case "loop":
 				player.loop = !player.loop;
@@ -303,11 +360,24 @@ $(() => {
 				break;
 			case "showed_only":
 				yn = !$(e.target).hasClass("btn_on");
-				if (started && yn && !$("li.playing").hasClass("showed"))
+				if (yn && !$("li.playing").hasClass("showed"))
 					$("li.showed").get(0).click();
 				break;
-			case "reverse":
+			case "MReverse":
 				yn = !$(e.target).hasClass("btn_on");
+				if (!started) break;
+				if (yn) {
+					player.pause();
+					if (!paused) MReverser(count, rev_cTime);
+				} else {
+					player.currentTime = cTime;
+					if (!paused) player.play();
+					if (rev_source) {
+						rev_context.suspend();
+						rev_source.stop(0);
+					}
+				}
+				break;
 		};
 		(yn) ? $(e.target).addClass("btn_on") : $(e.target).removeClass("btn_on");
 	});
@@ -355,7 +425,7 @@ $(() => {
 	window.setInterval(() => {
 		$("span#lyrics").parent().height(window.innerHeight -534);
 		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
-		$("button.time.next").css("marginRight", 200 -82 -$("input.time.show").width());
+		$("button.time.next").css("marginRight", 200 -79 -$("input.time.show").width());
 		$("ol#play_list").height(window.innerHeight -165);
 		if (!started) return;
 		// ソート
@@ -395,8 +465,15 @@ $(() => {
 		if (!player.duration) return;
 		// durationが必要
 		duration = Math.floor(player.duration *10) /10;
+		// if ($("button#MReverse").hasClass("btn_on")) {
+		// 	rev_cTime = Math.floor(rev_context.currentTime *10) /10;
+		// 	cTime = duration - rev_cTime;
+		// } else {
+		cTime = Math.floor(player.currentTime *10) /10;
+		// 	rev_cTime = duration - cTime;
+		// }
 		$("input.seek").prop("max", duration);
-		$("input.seek.range").val(Math.floor(player.currentTime *10) /10);
+		$("input.seek.range").val( cTime );
 		$("input.seek.show").width(`${duration *10}`.length *10);
 		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
 	}, 50);
@@ -440,8 +517,6 @@ $(() => {
 			else $("button.audio.next").click();
 		};
 	});
-	$(player).on("pause", () => (player.ended) ? "" : paused = true);
-	$(player).on("play", () => paused = false);
 	// 馬鹿みたいに長いショートカット
 	$("html").on("keydown", (event) => {
 		// 本職
@@ -468,11 +543,8 @@ $(() => {
 				if (started) {
 					$("button#pause").click();
 				} else {
-					if ($("input#play_data")[0].files.length && $("button#start").css("display") != "none") {
-						$("button#start").click();
-					} else {
-						$("input#play_data").click();
-					}
+					if ($("input#play_data")[0].files.length && $("button#start").css("display") != "none") $("button#start").click();
+					else $("input#play_data").click();
 				}
 				break;
 			case "KeyN":
@@ -495,11 +567,8 @@ $(() => {
 				$("button#loop").click();
 				break;
 			case "KeyS":
-				if (event.shiftKey) {
-					$("button#shuffle_btn").click();
-				} else {
-					$("button#shuffle").click();
-				}
+				if (event.shiftKey) $("button#shuffle_btn").click();
+				else $("button#shuffle").click();
 				break;
 			case "Comma":
 				$("button.speed.back").click();
