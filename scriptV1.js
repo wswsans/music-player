@@ -18,12 +18,8 @@ let analyser = null;
 let prevSpec = 0;
 let lipSyncInterval = null;
 // 逆再生
-const rev_context = new AudioContext();
-let rev_source = null;
-let Mbuffers = [];
 let cTime = 0;
 let rev_cTime = 0;
-
 player.preload = "metadata";
 
 // PWA
@@ -59,22 +55,6 @@ const syncLip = (spectrums) => {
 	$("img#mouse").attr("src", `./image/${imgName}`);
 	prevSpec = totalSpectrum;
 };
-const MReverser = (ct, start_time) => { // start_time: 逆再生ver
-	if (rev_source) {
-		rev_context.suspend().then(() => rev_context.resume());
-		rev_source.stop(0);
-		rev_source = null;
-		MReverser(ct, start_time);
-		return;
-	}
-	rev_source = rev_context.createBufferSource();
-	rev_source.buffer = Mbuffers[ct];
-	rev_source.playbackRate.value = parseFloat($("input.speed.range").val());
-	rev_source.connect(rev_context.destination);
-	rev_source.onended = () => rev_source.stop(0);
-	console.log(ct, start_time)
-	rev_source.start(0, start_time);
-}
 const start = (ct) => {
 	if (waiting) return;
 	waiting = true;
@@ -91,7 +71,7 @@ const start = (ct) => {
 	if ($(`li[value=${ct +1}]`).prop("MData")) {
 		player.src = $(`li[value=${ct +1}]`).prop("MData");
 		started = true;
-		if (!paused && !$("button#MReverse").hasClass("btn_on")) player.play();
+		if (!paused) player.play();
 	} else {
 		const fReader = new FileReader();
 		fReader.readAsDataURL(data[ct]);
@@ -99,19 +79,23 @@ const start = (ct) => {
 			$(`li[value=${ct +1}]`).prop("MData", event.target.result);
 			player.src = event.target.result;
 			started = true;
-			if (!paused && !$("button#MReverse").hasClass("btn_on")) player.play();
+			if (!paused) player.play();
 		};
 	}
 	// 逆再生用
-	if (rev_source) rev_source.stop(0);
-	if (!Mbuffers[ct]) {
+	if (!$(`li[value=${ct +1}]`).prop("MRData")) {
 		const fReader = new FileReader();
 		fReader.readAsArrayBuffer(data[ct]);
 		fReader.onloadend = (event) => {
+			const rev_context = new AudioContext();
 			rev_context.decodeAudioData(event.target.result, (b) => {
-				let buffer = b;
-				for (let i=0;i<buffer.numberOfChannels;i++) buffer.getChannelData(i).reverse();
-				Mbuffers[ct] = buffer;
+				window.buffer = b; // AudioBuffer をbufferへ
+				for (let i=0;i<buffer.numberOfChannels;i++) buffer.getChannelData(i).reverse(); // 逆再生
+				let tmp = new Float32Array(buffer.length); // bufferの長さと同じ長さのFloat32Array
+				buffer.copyFromChannel(tmp, (buffer.numberOfChannels -1), 0); // AudioBufferをtmp(ArrayBuffer)へ
+				window.testor = tmp;
+				let base64 = btoa( new Uint8Array(tmp.buffer).reduce((data, byte) => data + String.fromCharCode(byte), '') ); // Float32Array→Uint8Array→デコード
+				$(`li[value=${ct +1}]`).prop("MRData", `data:${data[ct].type};base64,${base64}`); // 入れる
 			});
 		};
 	}
@@ -218,7 +202,6 @@ $(() => {
 		};
 		// リストにまとめる
 		data = $(e.target).prop("files");
-		for (let i = 0; i < data.length; i++) Mbuffers.push(undefined);
 		$("input#list_track").prop("max", data.length);
 		$("ol#play_list").html("");
 		Object.values(data).forEach((val, i) => {
@@ -329,16 +312,8 @@ $(() => {
 				if(!started) return;
 				paused = !paused;
 				document.title = `${(paused) ? "▷" : "| |"} ${$("li.playing").text()}`;
-				if (paused) {
-					if (rev_source) {
-						rev_context.suspend();
-						rev_source.stop(0);
-					}
-					player.pause();
-				} else {
-					if ($("button#MReverse").hasClass("btn_on")) MReverser(count, rev_cTime)
-					else player.play();
-				}
+				if (paused) player.pause();
+				else player.play();
 				yn = paused
 				break;
 			case "loop":
@@ -366,17 +341,12 @@ $(() => {
 			case "MReverse":
 				yn = !$(e.target).hasClass("btn_on");
 				if (!started) break;
-				if (yn) {
-					player.pause();
-					if (!paused) MReverser(count, rev_cTime);
-				} else {
-					player.currentTime = cTime;
-					if (!paused) player.play();
-					if (rev_source) {
-						rev_context.suspend();
-						rev_source.stop(0);
-					}
-				}
+				player.pause();
+				let tmp = player.currentTime;
+				if (yn) player.src = $("li.playing").prop("MRData")
+				else player.src = $("li.playing").prop("MData");
+				player.currentTime = tmp;
+				if (!paused) player.play();
 				break;
 		};
 		(yn) ? $(e.target).addClass("btn_on") : $(e.target).removeClass("btn_on");
@@ -465,13 +435,13 @@ $(() => {
 		if (!player.duration) return;
 		// durationが必要
 		duration = Math.floor(player.duration *10) /10;
-		// if ($("button#MReverse").hasClass("btn_on")) {
-		// 	rev_cTime = Math.floor(rev_context.currentTime *10) /10;
-		// 	cTime = duration - rev_cTime;
-		// } else {
-		cTime = Math.floor(player.currentTime *10) /10;
-		// 	rev_cTime = duration - cTime;
-		// }
+		if ($("button#MReverse").hasClass("btn_on")) {
+			rev_cTime = Math.floor(player.currentTime *10) /10;
+			cTime = duration - rev_cTime;
+		} else {
+			cTime = Math.floor(player.currentTime *10) /10;
+			rev_cTime = duration - cTime;
+		}
 		$("input.seek").prop("max", duration);
 		$("input.seek.range").val( cTime );
 		$("input.seek.show").width(`${duration *10}`.length *10);
