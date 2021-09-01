@@ -95,7 +95,7 @@ button.time.next {
 }
 /* シークバー  */
 input.seek.range {
-	width: 600px; /* ボタン1個: 40pxくらい */
+	width: 565px; /* ボタン1個: 40pxくらい */
 }
 /* ファイル詳細 */
 div#switch {
