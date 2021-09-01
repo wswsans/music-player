@@ -385,7 +385,9 @@ $(() => {
 		$( tmp.get(Math.floor(Math.random() * tmp.length)) ).click().get(0).scrollIntoView(true) 
 	}});
 	// 速度
-	$("input.speed.range").on("input", e => $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = parseFloat($(e.target).val()) );
+	$("input.speed.range").on("input", e => {
+		if ($("button#MReverse").hasClass("btn_on")) $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = parseFloat($(e.target).val());
+	});
 	// 音量
 	$("input.volume.range").on("input", e => {
 		$("input.volume.show").val(parseFloat($(e.target).val()));
