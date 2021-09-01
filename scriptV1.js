@@ -111,7 +111,7 @@ const start = (ct) => {
 	};
 	// 逆再生用
 	if (rev_source) rev_source.stop(0);
-	if ($("button#MReverse").hasClass("btn_on")) $("button#MReverse").removeClass("btn_on");
+	if ($("button#MReverse").hasClass("btn_on")) $("button#MReverse").click();
 	if (!Mbuffers[ct]) {
 		const fReader = new FileReader();
 		fReader.readAsArrayBuffer(data[ct]);
