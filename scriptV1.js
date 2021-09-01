@@ -43,13 +43,13 @@ const webAudioSetup = () => {
 // スペクトルをもとにリップシンクを行う
 const syncLip = (spectrums) => {
 	const totalSpectrum = spectrums.reduce(function(a, x) { return a + x });
-	let imgName = "mouse_close.png";
+	let imgName = "mouth_close.png";
 	if (totalSpectrum > prevSpec) {
-		imgName = "mouse_open.png";
+		imgName = "mouth_open.png";
 	} else if (prevSpec - totalSpectrum < 500 && prevSpec - totalSpectrum > 0) {
-		imgName = "mouse_open_light.png";
+		imgName = "mouth_open_light.png";
 	}
-	$("img#mouse").attr("src", `./image/${imgName}`);
+	$("img#mouth").attr("src", `./image/${imgName}`);
 	prevSpec = totalSpectrum;
 };
 const start = (ct) => {
@@ -406,11 +406,11 @@ $(() => {
 		if ($("img#switch_img").hasClass("album_art")) {
 			$("img#switch_img").prop("src", $("img#switch_img").prop("artdata"));
 			$("div#switch").css("textAlign", "center");
-			$("img#mouse").hide();
+			$("img#mouth").hide();
 		} else {
 			$("img#switch_img").prop("src", "./image/face_normal.png");
 			$("div#switch").css("textAlign", "left");
-			$("img#mouse").show();
+			$("img#mouth").show();
 		}
 	});
 	// 曲リスト
