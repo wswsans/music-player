@@ -3,6 +3,7 @@ console.log("scriptV1.js Loaded!");
 console.log((window.navigator.onLine) ? "Online" : "Offline");
 
 const player = new Audio();
+var AudioContext = window.AudioContext || window.webkitAudioContext;
 
 let started = false;
 let paused = false; // player.pausedがあるが, button#startで強制的にpausedをはずさないといけないが, 外せないのでオリジナルを作ることにしている
@@ -16,6 +17,15 @@ let source = null;
 let analyser = null;
 let prevSpec = 0;
 let lipSyncInterval = null;
+// 逆再生
+const rev_context = new AudioContext();
+const gainNode = rev_context.createGain();
+let rev_source = null;
+let Mbuffers = [];
+let cTime = 0;
+let rev_cTime = 0;
+let timeLog = 0;
+let minus = 0;
 
 player.preload = "metadata";
 
@@ -30,7 +40,7 @@ if ('serviceWorker' in navigator && window.location.hostname != "localhost") {
 	});
 } else {
 	console.log('Service worker is Not supported');
-}
+};
 // Web Audio APIの初期化
 const webAudioSetup = () => {
 	context = new AudioContext();
@@ -52,10 +62,26 @@ const syncLip = (spectrums) => {
 	$("img#mouth").attr("src", `./image/${imgName}`);
 	prevSpec = totalSpectrum;
 };
+const MReverser = (ct, start_time) => { // start_time: 逆再生ver
+	if (rev_source) {
+		rev_source.stop(0);
+		// rev_source = null;
+		// MReverser(ct, start_time);
+		// return;
+	};
+	rev_source = rev_context.createBufferSource();
+	rev_source.buffer = Mbuffers[ct];
+	rev_source.playbackRate.value = 1;
+	rev_source.connect(gainNode);
+	gainNode.connect(rev_context.destination);
+	gainNode.gain.value = parseFloat($("input.volume.range").val());
+	rev_source.onended = () => rev_source.stop(0);
+	rev_source.start(0, start_time);
+};
 const start = (ct) => {
 	if (waiting) return;
 	waiting = true;
-	window.setTimeout(() => waiting = false, 300);
+	setTimeout(() => waiting = false, 300);
 	if(!context) {
 		webAudioSetup();
 		lipSyncInterval = setInterval(() => {
@@ -63,19 +89,41 @@ const start = (ct) => {
 			analyser.getByteFrequencyData(spectrums);
 			syncLip(spectrums);
 		}, 100);
-	}
+	};
+	// ロードより先にやっておきたいと
+	count = ct;
+	$("li").css("border", "1px dotted #000").removeClass("playing")
+			.filter(`[value=${ct +1}]`).css("border", "thick double #000").addClass("playing");
 	// ロード
-	const fReader = new FileReader();
-	fReader.readAsDataURL(data[ct]);
-	fReader.onloadend = (event) => {
-		player.src = event.target.result;
+	if ($("li.playing").prop("MData")) {
+		player.src = $("li.playing").prop("MData");
 		started = true;
 		if (!paused) player.play();
+	} else {
+		const fReader = new FileReader();
+		fReader.readAsDataURL(data[ct]);
+		fReader.onloadend = (event) => {
+			$("li.playing").prop("MData", event.target.result);
+			player.src = event.target.result;
+			started = true;
+			if (!paused) player.play();
+		};
+	};
+	// 逆再生用
+	if (rev_source) rev_source.stop(0);
+	if ($("button#MReverse").hasClass("btn_on")) $("button#MReverse").removeClass("btn_on");
+	if (!Mbuffers[ct]) {
+		const fReader = new FileReader();
+		fReader.readAsArrayBuffer(data[ct]);
+		fReader.onloadend = (event) => {
+			rev_context.decodeAudioData(event.target.result, (b) => {
+				let buffer = b;
+				for (let i=0;i<buffer.numberOfChannels;i++) buffer.getChannelData(i).reverse();
+				Mbuffers[ct] = buffer;
+			});
+		};
 	};
 	// ロードが終わったらやりたいもの
-	count = ct;
-	$("li").css("border", "1px dotted #000").removeClass("playing");
-	$(`li[value=${ct +1}]`).css("border", "thick double #000").addClass("playing");
 	document.title = `▷ ${$("li.playing").text()}`;
 	$("input#list_track").val(ct +1);
 	// ファイルデータ
@@ -92,9 +140,7 @@ const start = (ct) => {
 				Genre: ${$("li.playing").prop("MGenre")}<br>
 			`);
 			$("span#lyrics").html(`Lyrics: <br>${$("li.playing").prop("MLyrics")}<br>`);
-		} else {
-			MediaTagWaiting()
-		}
+		} else MediaTagWaiting();
 	}, 1);
 	MediaTagWaiting();
 	Notification.requestPermission().then((result) => {
@@ -109,8 +155,8 @@ const start = (ct) => {
 						this.close();
 					}
 				})
-			}, 300);
-		}
+			}, 50);
+		};
 	});
 };
 const PreservesPitch = (onOff) => {
@@ -125,8 +171,8 @@ const PreservesPitch = (onOff) => {
 		return player.webkitPreservesPitch;
 	} else {
 		console.log("preservesPitch is not supported by this browser.");
-	}
-}
+	};
+};
 
 $(() => {
 	$("div#drag_drop").on({
@@ -146,9 +192,7 @@ $(() => {
 			$(e.target).css("background", "rgba(255, 255, 255, 0)");
 			let tmp = new DataTransfer();
 			Object.values(e.originalEvent.dataTransfer.files).forEach(val => {
-				if ($("input#play_data").attr("accept").indexOf(val.name.replace(/(.*)\./, ".")) != -1) {
-					tmp.items.add(val);
-				}
+				if ($("input#play_data").attr("accept").indexOf(val.name.replace(/(.*)\./, ".")) != -1) tmp.items.add(val);
 			})
 			$("input#play_data").prop("files", tmp.files).change();
 		}
@@ -159,6 +203,7 @@ $(() => {
 		count = 0;
 		started = false;
 		waiting = false;
+		paused = false;
 		document.title = "Music Player";
 		$("button#reset").click();
 		player.currentTime = 0;
@@ -174,6 +219,7 @@ $(() => {
 		};
 		// リストにまとめる
 		data = $(e.target).prop("files");
+		for (let i = 0; i < data.length; i++) Mbuffers.push(undefined);
 		$("input#list_track").prop("max", data.length);
 		$("ol#play_list").html("");
 		Object.values(data).forEach((val, i) => {
@@ -183,7 +229,7 @@ $(() => {
 					.val(i + 1)
 					.addClass("showed")
 					.click(e => { if (count != i || player.shuffle) start(i) });
-			$(`li[value=${i +1}]`).prop({ MTitle: "", MArtist: "", MAlbum: "", MYear: "", MComment: "", MTrack: "", MGenre: "", MLyrics: "", Ready: false});
+			$(`li[value=${i +1}]`).prop({ MTitle: "", MArtist: "", MAlbum: "", MYear: "", MComment: "", MTrack: "", MGenre: "", MLyrics: "", Ready: false, MData: undefined});
 			const mediaTag = window.jsmediatags;
 			mediaTag.read(val, {
 				onSuccess: function(res) {
@@ -238,7 +284,7 @@ $(() => {
 		player.shuffle = true;
 		PreservesPitch(false);
 		player.muted = true;
-		$("button#notification, button#showed_only, button#reverse").addClass("btn_on");
+		$("button#notification, button#showed_only, button#reverse, button#MReverse").addClass("btn_on");
 		$("button.on_off").not("button#pause").click();
 		// 真ん中
 		$("input.range").slice(0, -1).val(1).trigger("input");
@@ -267,7 +313,7 @@ $(() => {
 				count = $(tmp.tag).get(tmp.num -1)
 				if (count == undefined) count = $(tmp.tag).last();
 				break;
-		}
+		};
 		count = $(count).val() -1
 		start(count);
 	});
@@ -275,14 +321,23 @@ $(() => {
 	$("button.on_off").click(e => {
 		let yn = null;
 		switch (e.target.id) {
+			// 特別必要なコードがない
 			case "notification":
+			case "reverse":
 				yn = !$(e.target).hasClass("btn_on");
 				break;
 			case "pause":
 				if(!started) return;
-				(paused) ? player.play() : player.pause();
-				document.title = `${(paused) ? "▷" : "| |"} ${$("li.playing").text()}`;
-				yn = !paused
+				paused = !paused;
+				document.title = `${(paused) ? "| |" : "▷"} ${$("li.playing").text()}`;
+				if (paused) {
+					if (rev_source) rev_source.stop(0);
+					player.pause();
+				} else {
+					if ($("button#MReverse").hasClass("btn_on")) MReverser(count, duration -cTime)
+					else player.play();
+				};
+				yn = paused
 				break;
 			case "loop":
 				player.loop = !player.loop;
@@ -299,15 +354,29 @@ $(() => {
 			case "mute":
 				player.muted = !player.muted;
 				$("input.volume").val((player.muted) ? 0 : player.volume);
+				if ($("button#MReverse").hasClass("btn_on")) MReverser(count, duration -cTime);
 				yn = !player.muted;
 				break;
 			case "showed_only":
 				yn = !$(e.target).hasClass("btn_on");
-				if (started && yn && !$("li.playing").hasClass("showed"))
-					$("li.showed").get(0).click();
+				if (yn && !$("li.playing").hasClass("showed")) $("li.showed").get(0).click();
 				break;
-			case "reverse":
+			case "MReverse":
 				yn = !$(e.target).hasClass("btn_on");
+				if (!started) break;
+				if (yn) {
+					$("button#pitch, .speed").css("cursor", "not-allowed").prop("disabled", true);
+					player.pause();
+					if (!paused) MReverser(count, duration -cTime);
+				} else {
+					$("button#pitch, .speed").css("cursor", "pointer").prop("disabled", false)
+											.filter("input").css("cursor", "text")
+											.filter(".range").css("cursor", "ew-resize");
+					player.currentTime = cTime;
+					if (!paused) player.play();
+					if (rev_source) rev_source.stop(0);
+				};
+				break;
 		};
 		(yn) ? $(e.target).addClass("btn_on") : $(e.target).removeClass("btn_on");
 	});
@@ -316,11 +385,13 @@ $(() => {
 		$( tmp.get(Math.floor(Math.random() * tmp.length)) ).click().get(0).scrollIntoView(true) 
 	}});
 	// 速度
-	$("input.speed.range").on("input", e => $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = $(e.target).val());
+	$("input.speed.range").on("input", e => $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = parseFloat($(e.target).val()) );
 	// 音量
 	$("input.volume.range").on("input", e => {
-		$("input.volume.show")[0].value = player.volume = ($(e.target).val() + ".0").slice(0, 3);
-		player.muted = !player.volume;
+		$("input.volume.show").val(parseFloat($(e.target).val()));
+		if ($("button#MReverse").hasClass("btn_on")) MReverser(count, duration -cTime);
+		player.volume = ($("input.volume.show").val() >= 1 ) ? 1 : $("input.volume.show").val();
+		player.muted = !parseFloat($("input.volume.show").val());
 		(!player.muted) ? $("button#mute").addClass("btn_on") : $("button#mute").removeClass("btn_on");
 	});
 	// 速度, 音量 共通
@@ -333,29 +404,41 @@ $(() => {
 		let classes = e.target.classList;
 		let code = {next: 1, back: -1}[classes[1]];
 		if (classes[0] == "time") {
-			player.currentTime += code * $("input.time.show").val();
+			if ($("button#MReverse").hasClass("btn_on")) {
+				cTime += code * $("input.time.show").val();
+				MReverser(count, duration -cTime);
+			} else {
+				player.currentTime += code * $("input.time.show").val();
+			}
 			$(e.target).blur();
 		} else {
 			// 先回りしてエラー回避
-			if ((parseFloat($(`input.${classes[0]}.range`).val()) +code*0.05) == 0.05 && classes[0] == "speed") $(`input.${classes[0]}.range`).val(0.05);
+			if ((parseFloat($(`input.${classes[0]}.range`).val()) +code*0.05) == 0.05 && classes[0] == "speed")
+				$(`input.${classes[0]}.range`).val(0.05);
 			$(`input.${classes[0]}.range`).val(parseFloat($(`input.${classes[0]}.range`).val()) + code *{volume: 0.1, speed: 0.05}[classes[0]]).trigger("input");
-		}
+		};
 	});
 	// スキップ時間
 	$("input.time.show").change(e => {
 		$(e.target).val( ($(e.target).val()) ? Math.floor(Math.abs($(e.target).val()) *10) /10 : "5" ).width(`${$("input.time.show").val() *10}`.length *5 +10).blur()
 	});
 	// シークバー
-	$("input.seek.range").on("input", e => player.currentTime = $(e.target).val());
+	$("input.seek.range").on("input", e => {
+		if ($("button#MReverse").hasClass("btn_on")) {
+			cTime = $(e.target).val()
+			if (!paused) MReverser(count, duration -cTime);
+		} else {
+			player.currentTime = $(e.target).val();
+		};
+	});
 	$("input.seek.show").change(e => { // 上とはわざと分離させる, classNameをまとめた変数がないから長くなって無駄
 		if ($(e.target).val() == "") $(e.target).val($("input.range.seek").val());
-		player.currentTime = $(e.target).val();
+		$("input.seek.range").val($(e.target).val()).trigger("input");
 		$(e.target).blur();
 	});
 	window.setInterval(() => {
 		$("span#lyrics").parent().height(window.innerHeight -534);
-		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
-		$("button.time.next").css("marginRight", 200 -82 -$("input.time.show").width());
+		$("button.time.next").css("marginRight", 200 -79 -$("input.time.show").width());
 		$("ol#play_list").height(window.innerHeight -165);
 		if (!started) return;
 		// ソート
@@ -384,9 +467,9 @@ $(() => {
 					nameA = parseFloat(nameA);
 					nameB = parseFloat(nameB);
 					break;
-			}
-			if (nameA < nameB) { return (($("button#reverse").hasClass("btn_on")) ? 1 : -1) }
-			if (nameA > nameB) { return (($("button#reverse").hasClass("btn_on")) ? -1 : 1) }
+			};
+			if (nameA < nameB) { return (($("button#reverse").hasClass("btn_on")) ? 1 : -1) };
+			if (nameA > nameB) { return (($("button#reverse").hasClass("btn_on")) ? -1 : 1) };
 			return 0;
 		});
 		// ソート結果 & リバース
@@ -396,10 +479,28 @@ $(() => {
 		// durationが必要
 		duration = Math.floor(player.duration *10) /10;
 		$("input.seek").prop("max", duration);
-		$("input.seek.range").val(Math.floor(player.currentTime *10) /10);
+		$("input.seek.range").val( cTime );
 		$("input.seek.show").width(`${duration *10}`.length *10);
+		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
 		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
 	}, 50);
+	window.setInterval(() => { // 時間操作系
+		if (rev_context.currentTime - timeLog >= 0.1) {
+			minus = 0.1;
+			timeLog = rev_context.currentTime;
+		} else {
+			minus = 0;
+		};
+		if ($("button#MReverse").hasClass("btn_on")) {
+			if (!paused) cTime -= minus;
+		} else {
+			cTime = Math.floor(player.currentTime *10) /10;
+		}
+		if (player.loop && cTime <= 0) {
+			MReverser(count, 0);
+			cTime = duration;
+		}
+	}, 1);
 	// アルバムアートと顔のスイッチ
 	$("div#switch").click(e => {
 		$("img#switch_img").toggleClass("album_art").toggleClass("face");
@@ -416,8 +517,8 @@ $(() => {
 	// 曲リスト
 	$("input#list_track").change(e => {
 		if ($(e.target).val() == "") $(e.target).val(count +1);
-		if ($("li").get($(e.target).val() -1) == undefined) $(e.target).val(1)
-		$(`li[value=${ $(e.target).val() }]`).click();
+		if ($("li").get($(e.target).val() -1) == undefined) $(e.target).val(1);
+		$("li").get($(e.target).val() -1).click();
 		$(e.target).blur();
 	});
 	// 検索
@@ -429,19 +530,19 @@ $(() => {
 			$("ol#play_list li").hide().removeClass("showed").each((ind, val) => {
 				if (($(val).prop($("select.search.selector").val()).toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show().addClass("showed");
 			})
-		}
-		if (started && $("button#showed_only").hasClass("btn_on") && !$("li.playing").hasClass("showed") && $("li.showed").length > 0)
-			$("li.showed").get(0).click();
+		};
+		if (started && $("button#showed_only").hasClass("btn_on") && !$("li.playing").hasClass("showed") && $("li.showed").length > 0) $("li.showed").get(0).click();
 	}).change(e => $(e.target).blur() );
 	// 曲終了
 	$(player).on("ended", () => {
 		if (!player.loop) {
-			if (player.shuffle) $("button#shuffle_btn").click()
-			else $("button.audio.next").click();
+			if (player.shuffle){
+				$("button#shuffle_btn").click()
+			} else {
+				$("button.audio.next").click();
+			};
 		};
 	});
-	$(player).on("pause", () => (player.ended) ? "" : paused = true);
-	$(player).on("play", () => paused = false);
 	// 馬鹿みたいに長いショートカット
 	$("html").on("keydown", (event) => {
 		// 本職
@@ -472,18 +573,15 @@ $(() => {
 						$("button#start").click();
 					} else {
 						$("input#play_data").click();
-					}
-				}
+					};
+				};
 				break;
 			case "KeyN":
 				$("button#notification").click();
 				break;
 			case "KeyR":
-				if (event.shiftKey){
-					$("button#reset").click();
-				} else {
-					$("button#reverse").click();
-				}
+				if (event.shiftKey) $("button#reset").click()
+				else $("button#reverse").click();
 				break;
 			case "KeyA":
 				$("button.audio.back").click();
@@ -495,11 +593,8 @@ $(() => {
 				$("button#loop").click();
 				break;
 			case "KeyS":
-				if (event.shiftKey) {
-					$("button#shuffle_btn").click();
-				} else {
-					$("button#shuffle").click();
-				}
+				if (event.shiftKey) $("button#shuffle_btn").click()
+				else $("button#shuffle").click();
 				break;
 			case "Comma":
 				$("button.speed.back").click();
@@ -544,13 +639,18 @@ $(() => {
 					$("li").slice(-1).click();
 				};
 			} else {
-				player.currentTime = duration *(parseInt(event.code.slice(-1))/10);
+				if ($("button#MReverse").hasClass("btn_on")) {
+					cTime = duration *(parseInt(event.code.slice(-1))/10);
+					MReverser(count, duration -cTime);
+				} else {
+					player.currentTime = duration *(parseInt(event.code.slice(-1))/10);
+				};
 			};
 		};
 	});
 	// 定義し終わったらやるタイプのものたち, data.changeでリセットするならあっちで
 	$("input.speed")[0].min = "0";
-	if (window.innerHeight > window.innerWidth) alert("横画面の方が操作しやすいです")
+	if (window.innerHeight > window.innerWidth) window.alert("横画面の方が操作しやすいです");
 	$("*").not("input[type=number], input[type=text]").focus(e => $(e.target).blur());
 	// ダイアログ
 	$("div#shadow").click(() => {$("div#shadow").stop().fadeToggle(100); $("div#dialog").stop().fadeToggle(100)});
