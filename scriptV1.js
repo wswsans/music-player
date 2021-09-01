@@ -620,6 +620,9 @@ $(() => {
 			case "ArrowRight":
 				$("button.time.next").click();
 				break;
+			case "KeyW":
+				$("button#MReverse").click();
+				break;
 			case "KeyI":
 				$("div#switch").click();
 				break;
