@@ -337,7 +337,7 @@ $(() => {
 					if ($("button#MReverse").hasClass("btn_on")) MReverser(count, duration -cTime)
 					else player.play();
 				};
-				yn = paused
+				yn = paused;
 				break;
 			case "loop":
 				player.loop = !player.loop;
@@ -385,9 +385,7 @@ $(() => {
 		$( tmp.get(Math.floor(Math.random() * tmp.length)) ).click().get(0).scrollIntoView(true) 
 	}});
 	// 速度
-	$("input.speed.range").on("input", e => {
-		if ($("button#MReverse").hasClass("btn_on")) $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = parseFloat($(e.target).val());
-	});
+	$("input.speed.range").on("input", e => $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = parseFloat($(e.target).val()) );
 	// 音量
 	$("input.volume.range").on("input", e => {
 		$("input.volume.show").val(parseFloat($(e.target).val()));
@@ -417,6 +415,8 @@ $(() => {
 			// 先回りしてエラー回避
 			if ((parseFloat($(`input.${classes[0]}.range`).val()) +code*0.05) == 0.05 && classes[0] == "speed")
 				$(`input.${classes[0]}.range`).val(0.05);
+			if ($("button#MReverse").hasClass("btn_on") && classes[0] == "speed")
+				return;
 			$(`input.${classes[0]}.range`).val(parseFloat($(`input.${classes[0]}.range`).val()) + code *{volume: 0.1, speed: 0.05}[classes[0]]).trigger("input");
 		};
 	});
@@ -489,7 +489,7 @@ $(() => {
 	window.setInterval(() => { // 時間操作系
 		if (rev_context.currentTime - timeLog >= 0.1) {
 			minus = 0.1;
-			timeLog = rev_context.currentTime;
+			timeLog = Math.floor(rev_context.currentTime *10) /10;
 		} else {
 			minus = 0;
 		};
