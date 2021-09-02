@@ -406,7 +406,7 @@ $(() => {
 		if (classes[0] == "time") {
 			if ($("button#MReverse").hasClass("btn_on")) {
 				cTime += code * $("input.time.show").val();
-				MReverser(count, duration -cTime);
+				if (!paused) MReverser(count, duration -cTime);
 			} else {
 				player.currentTime += code * $("input.time.show").val();
 			}
@@ -498,7 +498,7 @@ $(() => {
 		} else {
 			cTime = Math.floor(player.currentTime *10) /10;
 		}
-		if (player.loop && cTime <= 0) {
+		if (player.loop && cTime <= 0 && !paused) {
 			MReverser(count, 0);
 			cTime = duration;
 		}
@@ -646,7 +646,7 @@ $(() => {
 			} else {
 				if ($("button#MReverse").hasClass("btn_on")) {
 					cTime = duration *(parseInt(event.code.slice(-1))/10);
-					MReverser(count, duration -cTime);
+					if (!paused) MReverser(count, duration -cTime);
 				} else {
 					player.currentTime = duration *(parseInt(event.code.slice(-1))/10);
 				};
