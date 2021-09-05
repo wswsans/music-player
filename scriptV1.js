@@ -406,6 +406,8 @@ $(() => {
 		if (classes[0] == "time") {
 			if ($("button#MReverse").hasClass("btn_on")) {
 				cTime += code * $("input.time.show").val();
+				if (cTime <= 0) cTime = 0;
+				if (duration <= cTime) cTime = duration;
 				if (!paused) MReverser(count, duration -cTime);
 			} else {
 				player.currentTime += code * $("input.time.show").val();
