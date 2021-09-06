@@ -64,19 +64,23 @@ const syncLip = (spectrums) => {
 };
 const MReverser = (ct, start_time) => { // start_time: 逆再生ver
 	if (rev_source) {
-		rev_source.stop(0);
-		// rev_source = null;
-		// MReverser(ct, start_time);
-		// return;
-	};
+		rev_source.onended();
+		rev_source = null;
+	}
 	rev_source = rev_context.createBufferSource();
 	rev_source.buffer = Mbuffers[ct];
 	rev_source.playbackRate.value = 1;
+	rev_source.onended = () => {
+		try {
+			rev_source.stop(0);
+		} catch (e) { };
+	};
 	rev_source.connect(gainNode);
 	gainNode.connect(rev_context.destination);
 	gainNode.gain.value = parseFloat($("input.volume.range").val());
-	rev_source.onended = () => rev_source.stop(0);
-	rev_source.start(0, start_time);
+	let tmp = start_time -0.01;
+	if (tmp <= 0) tmp = 0;
+	setTimeout(() => rev_source.start(0, tmp), 10);
 };
 const start = (ct) => {
 	if (waiting) return;
@@ -341,6 +345,7 @@ $(() => {
 				break;
 			case "loop":
 				player.loop = !player.loop;
+				if (rev_source) rev_source.loop = player.loop;
 				yn = player.loop;
 				break;
 			case "shuffle":
@@ -646,11 +651,11 @@ $(() => {
 					$("li").slice(-1).click();
 				};
 			} else {
+				cTime = duration *(parseInt(event.code.slice(-1))/10);
 				if ($("button#MReverse").hasClass("btn_on")) {
-					cTime = duration *(parseInt(event.code.slice(-1))/10);
 					if (!paused) MReverser(count, duration -cTime);
 				} else {
-					player.currentTime = duration *(parseInt(event.code.slice(-1))/10);
+					player.currentTime = cTime;
 				};
 			};
 		};
