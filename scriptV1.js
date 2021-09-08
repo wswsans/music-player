@@ -99,6 +99,7 @@ const start = (ct) => {
 	$("li").css("border", "1px dotted #000").removeClass("playing")
 			.filter(`[value=${ct +1}]`).css("border", "thick double #000").addClass("playing");
 	// ロード
+	cTime = player.currentTime = 0;
 	if ($("li.playing").prop("MData")) {
 		player.src = $("li.playing").prop("MData");
 		started = true;
@@ -115,7 +116,7 @@ const start = (ct) => {
 	};
 	// 逆再生用
 	if (rev_source) rev_source.stop(0);
-	if ($("button#MReverse").hasClass("btn_on")) $("button#MReverse").click();
+	$("button#MReverse").addClass("btn_on").click();
 	if (!Mbuffers[ct]) {
 		const fReader = new FileReader();
 		fReader.readAsArrayBuffer(data[ct]);
@@ -310,11 +311,11 @@ $(() => {
 		$(tmp.tag).each((ind, val) => { if ($(val).hasClass("playing")) tmp.num = ind });
 		switch (e.target.classList[1]) {
 			case "next":
-				count = $(tmp.tag).get(tmp.num +1)
+				count = $(tmp.tag).get(tmp.num +1);
 				if (count == undefined) count = $(tmp.tag).first();
 				break;
 			case "back":
-				count = $(tmp.tag).get(tmp.num -1)
+				count = $(tmp.tag).get(tmp.num -1);
 				if (count == undefined) count = $(tmp.tag).last();
 				break;
 		};
@@ -546,7 +547,7 @@ $(() => {
 	$(player).on("ended", () => {
 		if (!player.loop) {
 			if (player.shuffle){
-				$("button#shuffle_btn").click()
+				$("button#shuffle_btn").click();
 			} else {
 				$("button.audio.next").click();
 			};
