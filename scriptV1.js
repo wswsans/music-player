@@ -506,7 +506,7 @@ $(() => {
 		} else {
 			cTime = Math.floor(player.currentTime *10) /10;
 		}
-		if (player.loop && cTime <= 0 && !paused) {
+		if ($("button#MReverse").hasClass("btn_on") && player.loop && cTime <= 0 && !paused) {
 			MReverser(count, 0);
 			cTime = duration;
 		}
