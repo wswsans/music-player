@@ -187,6 +187,43 @@ const PreservesPitch = (onOff) => {
 		console.log("preservesPitch is not supported by this browser.");
 	};
 };
+// ソート
+const sortPlayList = () => {
+	let tmp = $("ol#play_list").children().get()
+	console.log("tmp:", tmp);
+	tmp.sort(function (a, b) {
+		let nameA = $(a).prop( $("select.sort.selector").val() )
+		let nameB = $(b).prop( $("select.sort.selector").val() )
+		switch ($("select.sort.selector").val()) {
+			// 文字
+			case "MName":
+			case "MTitle":
+			case "MArtist":
+			case "MAlbum":
+			case "MComment":
+			case "MGenre":
+			case "MLyrics":
+				nameA = String(nameA).toLowerCase();
+				nameB = String(nameB).toLowerCase();
+				break;
+			// 数字
+			case "MTrack":
+				nameA = String(nameA).replace(/\/(.*)/, "");
+				nameB = String(nameB).replace(/\/(.*)/, "");
+			case "value":
+			case "MYear":
+				nameA = parseFloat(nameA);
+				nameB = parseFloat(nameB);
+				break;
+		};
+		if (nameA < nameB) { return (($("button#reverse").hasClass("btn_on")) ? 1 : -1) };
+		if (nameA > nameB) { return (($("button#reverse").hasClass("btn_on")) ? -1 : 1) };
+		return 0;
+	});
+	// ソート結果
+	$("ol#play_list").html("");
+	tmp.forEach((val, ind) => $(val).appendTo("ol#play_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
+};
 
 $(() => {
 	$("div#drag_drop").on({
@@ -462,42 +499,8 @@ $(() => {
 			player.currentTime = $(e.target).val();
 		};
 	});
-	window.setInterval(() => {
-		// ソート
-		let tmp = $("ol#play_list").children().get()
-		tmp.sort(function (a, b) {
-			let nameA = $(a).prop( $("select.sort.selector").val() )
-			let nameB = $(b).prop( $("select.sort.selector").val() )
-			switch ($("select.sort.selector").val()) {
-				// 文字
-				case "MName":
-				case "MTitle":
-				case "MArtist":
-				case "MAlbum":
-				case "MComment":
-				case "MGenre":
-				case "MLyrics":
-					nameA = String(nameA).toLowerCase();
-					nameB = String(nameB).toLowerCase();
-					break;
-				// 数字
-				case "MTrack":
-					nameA = String(nameA).replace(/\/(.*)/, "");
-					nameB = String(nameB).replace(/\/(.*)/, "");
-				case "value":
-				case "MYear":
-					nameA = parseFloat(nameA);
-					nameB = parseFloat(nameB);
-					break;
-			};
-			if (nameA < nameB) { return (($("button#reverse").hasClass("btn_on")) ? 1 : -1) };
-			if (nameA > nameB) { return (($("button#reverse").hasClass("btn_on")) ? -1 : 1) };
-			return 0;
-		});
-		// ソート結果
-		$("ol#play_list").html("");
-		tmp.forEach((val, ind) => $(val).appendTo("ol#play_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
-	}, 50);
+	$("select.sort.selector").change(sortPlayList);
+	$("button#reverse").click(sortPlayList);
 	window.setInterval(() => { // 時間操作系
 		if (!started) return;
 		if (rev_started && rev_context.currentTime - timeLog >= 0.1) {
