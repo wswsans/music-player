@@ -13,6 +13,7 @@ let waiting = false;
 let duration = 0;
 let cTime = 0;
 let resetting = false;
+let wholeLoop = true;
 // リップシンク用の変数達
 let context = null;
 let source = null;
@@ -296,12 +297,14 @@ $(() => {
 		resetting = true;
 		$("*").blur();
 		// clickして逆になるので想像と逆の変数設定を
-		player.loop = true;
+		wholeLoop = false;
+		player.loop = false;
 		player.shuffle = true;
 		PreservesPitch(false);
 		player.muted = true;
 		$("button#notification, button#showed_only, button#reverse, button#MReverse").addClass("btn_on");
 		$("button.on_off").not("button#pause").click();
+		$("button#loop").click();
 		if (rev_started) rev_source.onended(0);
 		// 真ん中
 		$("input.range").not(".seek").val(1).trigger("input");
@@ -325,7 +328,10 @@ $(() => {
 		switch (e.target.classList[1]) {
 			case "next":
 				count = $(tmp.tag).get(tmp.num +1);
-				if (count == undefined) count = $(tmp.tag).first();
+				if (count == undefined) {
+					count = $(tmp.tag).first();
+					if(!wholeLoop) $("button#pause").click();
+				}
 				break;
 			case "back":
 				count = $(tmp.tag).get(tmp.num -1);
@@ -335,7 +341,7 @@ $(() => {
 		count = $(count).val() -1
 		start(count);
 	});
-	// 一時停止, ループ, シャッフル, ピッチ, ミュート 
+	// 一時停止, シャッフル, ピッチ, ミュート 
 	$("button.on_off").click(e => {
 		let yn = null;
 		switch (e.target.id) {
@@ -359,10 +365,6 @@ $(() => {
 						player.play();
 					}
 				};
-				break;
-			case "loop":
-				player.loop = !player.loop;
-				yn = player.loop;
 				break;
 			case "shuffle":
 				player.shuffle = !player.shuffle;
@@ -405,6 +407,25 @@ $(() => {
 			$(e.target).addClass("btn_on");
 		} else {
 			$(e.target).removeClass("btn_on");
+		}
+	});
+	// ループ
+	$("button#loop").click(e => {
+		if (wholeLoop) {  // 全曲ループ -> 1曲ループ
+			wholeLoop = false;
+			player.loop = true;
+			$(e.target).text("⟲1");
+			$(e.target).addClass("btn_on");
+		} else if(player.loop) {  // 1曲ループ -> ループ無し
+			wholeLoop = false;
+			player.loop = false;
+			$(e.target).text("⟲");
+			$(e.target).removeClass("btn_on");
+		} else {  // ループ無し -> 全曲ループ
+			wholeLoop = true;
+			player.loop = false;
+			$(e.target).text("⟲");
+			$(e.target).addClass("btn_on");
 		}
 	});
 	$("button#shuffle_btn").click(() => { if (player.shuffle) {
