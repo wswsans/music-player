@@ -3,9 +3,9 @@ console.log("scriptV1.js Loaded!");
 console.log((window.navigator.onLine) ? "Online" : "Offline");
 
 const isJapanese = (((window.navigator.languages && window.navigator.languages[0]) ||
-        							window.navigator.language ||
-        							window.navigator.userLanguage ||
-        							window.navigator.browserLanguage).substr(0, 2) == 'ja');
+                      window.navigator.language ||
+                      window.navigator.userLanguage ||
+                      window.navigator.browserLanguage).substr(0, 2) == 'ja');
 const dialog = isJapanese ? "div#dialog" : "div#dialog-en";
 
 const player = new Audio();
@@ -735,9 +735,9 @@ $(() => {
 	});
 	// 定義し終わったらやるタイプのものたち, data.changeでリセットするならあっちで
 	$("input.speed")[0].min = "0";
-	let landscapeAlert = isJapanese
-										 ? "横画面の方が操作しやすいです"
-										 : "Are you currently using a smartphone or tablet?\nThis app is recommended to be used in landscape mode.";
+  let landscapeAlert = isJapanese
+                     ? "横画面の方が操作しやすいです"
+                     : "Are you currently using a smartphone or tablet?\nThis app is recommended to be used in landscape mode.";
 	if (window.innerHeight > window.innerWidth) window.alert(landscapeAlert);
 	$("*").not("input[type=number], input[type=text]").focus(e => $(e.target).blur());
 	// ダイアログ
