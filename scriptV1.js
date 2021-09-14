@@ -2,6 +2,12 @@
 console.log("scriptV1.js Loaded!");
 console.log((window.navigator.onLine) ? "Online" : "Offline");
 
+const isJapanese = (((window.navigator.languages && window.navigator.languages[0]) ||
+        							window.navigator.language ||
+        							window.navigator.userLanguage ||
+        							window.navigator.browserLanguage).substr(0, 2) == 'ja');
+const dialog = isJapanese ? "div#dialog" : "div#dialog-en";
+
 const player = new Audio();
 var AudioContext = window.AudioContext || window.webkitAudioContext;
 
@@ -166,7 +172,7 @@ const start = (ct) => {
 					icon: $("img#switch_img").prop("artdata"),
 					timeout: 5000,
 					onClick: function () {
-						window.focus(); 
+						window.focus();
 						this.close();
 					}
 				})
@@ -191,7 +197,6 @@ const PreservesPitch = (onOff) => {
 // ソート
 const sortPlayList = () => {
 	let tmp = $("ol#play_list").children().get()
-	console.log("tmp:", tmp);
 	tmp.sort(function (a, b) {
 		let nameA = $(a).prop( $("select.sort.selector").val() )
 		let nameB = $(b).prop( $("select.sort.selector").val() )
@@ -378,7 +383,7 @@ $(() => {
 		count = $(count).val() -1
 		start(count);
 	});
-	// 一時停止, シャッフル, ピッチ, ミュート 
+	// 一時停止, シャッフル, ピッチ, ミュート
 	$("button.on_off").click(e => {
 		let yn = null;
 		switch (e.target.id) {
@@ -467,7 +472,7 @@ $(() => {
 	});
 	$("button#shuffle_btn").click(() => { if (player.shuffle) {
 		let tmp = $("li" + (($("button#showed_only").hasClass("btn_on")) ? ".showed" : ""))
-		$( tmp.get(Math.floor(Math.random() * tmp.length)) ).click().get(0).scrollIntoView(true) 
+		$( tmp.get(Math.floor(Math.random() * tmp.length)) ).click().get(0).scrollIntoView(true)
 	}});
 	// 速度
 	$("input.speed.range").on("input", e => $("input.speed.show")[0].value = player.playbackRate = player.defaultPlaybackRate = parseFloat($(e.target).val()) );
@@ -625,10 +630,10 @@ $(() => {
 		) return;
 		switch (event.code) {
 			case "Slash":
-				$("div#shadow, div#dialog").stop().fadeToggle(100);
+				$("div#shadow, " + dialog).stop().fadeToggle(100);
 				break;
 			case "Escape":
-				$("div#shadow, div#dialog").stop().fadeOut(100)
+				$("div#shadow, " + dialog).stop().fadeOut(100)
 				break;
 			case "KeyC":
 				$("input#play_data").click();
@@ -730,8 +735,11 @@ $(() => {
 	});
 	// 定義し終わったらやるタイプのものたち, data.changeでリセットするならあっちで
 	$("input.speed")[0].min = "0";
-	if (window.innerHeight > window.innerWidth) window.alert("横画面の方が操作しやすいです");
+	let landscapeAlert = isJapanese
+										 ? "横画面の方が操作しやすいです"
+										 : "Are you currently using a smartphone or tablet?\nThis app is recommended to be used in landscape mode.";
+	if (window.innerHeight > window.innerWidth) window.alert(landscapeAlert);
 	$("*").not("input[type=number], input[type=text]").focus(e => $(e.target).blur());
 	// ダイアログ
-	$("div#shadow").click(() => {$("div#shadow").stop().fadeToggle(100); $("div#dialog").stop().fadeToggle(100)});
+	$("div#shadow").click(() => {$("div#shadow").stop().fadeToggle(100); $(dialog).stop().fadeToggle(100)});
 });
