@@ -119,6 +119,7 @@ const start = (ct) => {
 		if (!paused) player.play();
 		$("div.loader").hide();
 		$("div#switch img").show();
+		if ($("img#switch_img").hasClass("album_art")) $("img#mouth").hide();
 	}
 	if ($("li.playing").prop("MData")) {
 		player.src = $("li.playing").prop("MData");
