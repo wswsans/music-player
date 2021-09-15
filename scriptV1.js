@@ -114,18 +114,22 @@ const start = (ct) => {
 			.filter(`[value=${ct +1}]`).css("border", "thick double #000").addClass("playing");
 	// ロード
 	cTime = player.currentTime = 0;
-	if ($("li.playing").prop("MData")) {
-		player.src = $("li.playing").prop("MData");
+	let tmp = () => {
 		started = true;
 		if (!paused) player.play();
+		$("div.loader").hide();
+		$("div#switch img").show();
+	}
+	if ($("li.playing").prop("MData")) {
+		player.src = $("li.playing").prop("MData");
+		tmp();
 	} else {
 		const fReader = new FileReader();
 		fReader.readAsDataURL(data[ct]);
 		fReader.onloadend = (event) => {
 			$("li.playing").prop("MData", event.target.result);
 			player.src = event.target.result;
-			started = true;
-			if (!paused) player.play();
+			tmp();
 		};
 	};
 	// 逆再生用
@@ -147,8 +151,6 @@ const start = (ct) => {
 	// ファイルデータ
 	let MediaTagWaiting = () => setTimeout(() => {
 		if ($("li.playing").prop("Ready")) {
-			$("div.loader").hide();
-			$("div#switch img").show();
 			$("img#switch_img").prop("artdata", $("li.playing").prop("artdata")).click().click();
 			$("span#description").html(`
 				Title: ${$("li.playing").prop("MTitle")}<br>
