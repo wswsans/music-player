@@ -453,7 +453,7 @@ $(() => {
 				yn = !$(e.target).hasClass("btn_on");
 				if (!started) break;
 				if (yn) {
-					if ($("img#switch_img").hasClass("face")) $("img#switch_img").click();
+					if ($("img#switch_img").hasClass("face")) $("img#switch_img").click().prop("already", true);
 					$("button#pitch, .speed, div#switch").css("cursor", "not-allowed").not("div#switch").prop("disabled", true);
 					player.pause();
 					MReverser(count, duration -cTime);
@@ -462,6 +462,7 @@ $(() => {
 											.not("div#switch").prop("disabled", false)
 											.filter("input").css("cursor", "text")
 											.filter(".range").css("cursor", "ew-resize");
+					if ($("img#switch_img").prop("already")) $("img#switch_img").click().prop("already", false);
 					player.currentTime = cTime;
 					if (!paused) player.play();
 					if (rev_source) rev_source.onended();
@@ -566,7 +567,7 @@ $(() => {
 	}, 1);
 	// アルバムアートと顔のスイッチ
 	$("div#switch").click(e => {
-		if ($("button#MReverse").hasClass("btn_on")) return;
+		if ($("button#MReverse").hasClass("btn_on") && !$(e.target).prop("already")) return;
 		$("img#switch_img").toggleClass("album_art").toggleClass("face");
 		if ($("img#switch_img").hasClass("album_art")) {
 			$("img#switch_img").prop("src", $("img#switch_img").prop("artdata"));
