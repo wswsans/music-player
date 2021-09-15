@@ -150,6 +150,8 @@ const start = (ct) => {
 	// ファイルデータ
 	let MediaTagWaiting = () => setTimeout(() => {
 		if ($("li.playing").prop("Ready")) {
+			$("div.loader").hide();
+			$("div#switch img").show();
 			$("img#switch_img").prop("artdata", $("li.playing").prop("artdata")).click().click();
 			$("span#description").html(`
 				Title: ${$("li.playing").prop("MTitle")}<br>
@@ -263,11 +265,13 @@ $(() => {
 		paused = false;
 		document.title = "Music Player";
 		$("button#reset").click();
-		cTime = player.currentTime = 0;
-		$("input.range.seek").val(0).trigger("input");
 		if (rev_started) rev_source.onended(0);
 		player.pause();
 		$("button#pause").removeClass("btn_on");
+		cTime = player.currentTime = 0;
+		$("input.range.seek").val(0).trigger("input");
+		$("div.loader").show();
+		$("div#switch img").hide();
 		$("section#player, table#lists").hide();
 		$("ol#play_list").html("");
 		if ($(e.target).val()) {
