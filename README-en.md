@@ -13,7 +13,7 @@
 * Change playback speed and volume
 * x seconds skip available (equivalent to 5 seconds skip of YouTube)
 	* (Configurable number of seconds)
-* Seek
+* Seek playback
 * Reverse playback
 * Configurable playback speed, volume, playback time
 
@@ -61,4 +61,4 @@
 
 
 ## Caution
-This app is made for wswsan's private reason. So the user interface is rough and there are few descriptions. Sorry!
+This app is made for [wswsan](https://github.com/wswsans)'s private reason. So the user interface is rough and there are few descriptions. Sorry!
