@@ -72,10 +72,7 @@ const syncLip = (spectrums) => {
 };
 const MReverser = (ct, start_time) => { // start_time: 逆再生ver
 	rev_started = false;
-	if (rev_source) {
-		rev_source.onended();
-		rev_source = null;
-	}
+	if (rev_source) rev_source.onended();
 	if (paused || !started || resetting) return;
 	rev_context = new AudioContext();
 	timeLog = 0;
