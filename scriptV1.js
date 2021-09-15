@@ -2,14 +2,14 @@
 console.log("scriptV1.js Loaded!");
 console.log((window.navigator.onLine) ? "Online" : "Offline");
 
+const player = new Audio();
+var AudioContext = window.AudioContext || window.webkitAudioContext;
+
 const isJapanese = (((window.navigator.languages && window.navigator.languages[0]) ||
                       window.navigator.language ||
                       window.navigator.userLanguage ||
                       window.navigator.browserLanguage).substr(0, 2) == 'ja');
 const dialog = isJapanese ? "div#dialog" : "div#dialog-en";
-
-const player = new Audio();
-var AudioContext = window.AudioContext || window.webkitAudioContext;
 
 let data = null;
 let started = false;
@@ -383,6 +383,25 @@ $(() => {
 		count = $(count).val() -1
 		start(count);
 	});
+	// ループ
+	$("button#loop").click(e => {
+		if (wholeLoop) {  // 全曲ループ -> 1曲ループ
+			wholeLoop = false;
+			player.loop = true;
+			$(e.target).text("⟲1");
+			$(e.target).addClass("btn_on");
+		} else if(player.loop) {  // 1曲ループ -> ループ無し
+			wholeLoop = false;
+			player.loop = false;
+			$(e.target).text("⟲");
+			$(e.target).removeClass("btn_on");
+		} else {  // ループ無し -> 全曲ループ
+			wholeLoop = true;
+			player.loop = false;
+			$(e.target).text("⟲");
+			$(e.target).addClass("btn_on");
+		}
+	});
 	// 一時停止, シャッフル, ピッチ, ミュート
 	$("button.on_off").click(e => {
 		let yn = null;
@@ -451,25 +470,6 @@ $(() => {
 			$(e.target).removeClass("btn_on");
 		}
 	});
-	// ループ
-	$("button#loop").click(e => {
-		if (wholeLoop) {  // 全曲ループ -> 1曲ループ
-			wholeLoop = false;
-			player.loop = true;
-			$(e.target).text("⟲1");
-			$(e.target).addClass("btn_on");
-		} else if(player.loop) {  // 1曲ループ -> ループ無し
-			wholeLoop = false;
-			player.loop = false;
-			$(e.target).text("⟲");
-			$(e.target).removeClass("btn_on");
-		} else {  // ループ無し -> 全曲ループ
-			wholeLoop = true;
-			player.loop = false;
-			$(e.target).text("⟲");
-			$(e.target).addClass("btn_on");
-		}
-	});
 	$("button#shuffle_btn").click(() => { if (player.shuffle) {
 		let tmp = $("li" + (($("button#showed_only").hasClass("btn_on")) ? ".showed" : ""))
 		$( tmp.get(Math.floor(Math.random() * tmp.length)) ).click().get(0).scrollIntoView(true)
@@ -487,9 +487,7 @@ $(() => {
 	// 速度, 音量 共通
 	$("input.show.similar_num").change(e => {
 		let classes = e.target.classList;
-		if ($(e.target).val() == "") {
-			$(e.target).val(((classes[0] == "seek") ? $("input.range.seek").val() : 1))
-		}
+		if ($(e.target).val() == "") $(e.target).val(((classes[0] == "seek") ? $("input.range.seek").val() : 1));
 		$(`input.${classes[0]}.range`).val($(e.target).val()).trigger("input");
 		$(e.target).blur();
 	});
@@ -525,22 +523,27 @@ $(() => {
 			player.currentTime = $(e.target).val();
 		};
 	});
+	// ソート
 	$("select.sort.selector").change(sortPlayList);
 	$("button#reverse").click(sortPlayList);
-	window.setInterval(() => { // 時間操作系
+	// 時間操作系
+	window.setInterval(() => {
 		if (!started) return;
+		// 0.1秒の観測
 		if (rev_started && rev_context.currentTime - timeLog >= 0.1) {
 			minus = 0.1;
 			timeLog = Math.floor(rev_context.currentTime *10) /10;
 		} else {
 			minus = 0;
 		};
+		// currentTime
 		if ($("button#MReverse").hasClass("btn_on")) {
 			if (!paused) cTime -= minus;
 		} else {
 			cTime = Math.floor(player.currentTime *10) /10;
 		}
-		if ($("button#MReverse").hasClass("btn_on") && player.loop && cTime <= 0 && !paused) {
+		// 逆再生 - ループ
+		if ($("button#MReverse").hasClass("btn_on") && cTime <= 0 && player.loop && !paused) {
 			MReverser(count, 0);
 			cTime = duration;
 		}
