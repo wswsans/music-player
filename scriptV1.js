@@ -735,9 +735,9 @@ $(() => {
 	});
 	// 定義し終わったらやるタイプのものたち, data.changeでリセットするならあっちで
 	$("input.speed")[0].min = "0";
-  let landscapeAlert = isJapanese
-                     ? "横画面の方が操作しやすいです"
-                     : "Are you currently using a smartphone or tablet?\nThis app is recommended to be used in landscape mode.";
+	let landscapeAlert = isJapanese
+                       ? "横画面の方が操作しやすいです"
+                       : "Are you currently using a smartphone or tablet?\nThis app is recommended to be used in landscape mode.";
 	if (window.innerHeight > window.innerWidth) window.alert(landscapeAlert);
 	$("*").not("input[type=number], input[type=text]").focus(e => $(e.target).blur());
 	// ダイアログ

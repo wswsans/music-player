@@ -1,3 +1,4 @@
+[English README](./README-en.md)
 # [music-player](https://wswsans.github.io/music-player/)
 ## 機能
 <!-- * ほぼYouTubeの機能を持った音楽プレイヤー -->
