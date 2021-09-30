@@ -27,7 +27,7 @@ let analyser = null;
 let prevSpec = 0;
 let lipSyncInterval = null;
 // 逆再生
-let rev_context = new AudioContext();
+let rev_context = null;
 let rev_source = null;
 let gainNode = null;
 let Mbuffers = [];
@@ -74,7 +74,6 @@ const MReverser = (ct, start_time) => { // start_time: 逆再生ver
 	rev_started = false;
 	if (rev_source) rev_source.onended();
 	if (paused || !started || resetting) return;
-	rev_context = new AudioContext();
 	timeLog = 0;
 	rev_source = rev_context.createBufferSource();
 	rev_source.buffer = Mbuffers[ct];
@@ -135,6 +134,7 @@ const start = (ct) => {
 	};
 	// 逆再生用
 	$("button#MReverse").addClass("btn_on").click();
+	if (!rev_context) rev_context = new AudioContext();
 	if (!Mbuffers[ct]) {
 		const fReader = new FileReader();
 		fReader.readAsArrayBuffer(data[ct]);
