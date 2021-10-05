@@ -1,4 +1,4 @@
-var cacheName = 'MusicPlayer-v1';
+var cacheName = 'MusicPlayer-v2';
 var urlsToCache = [
   '/music-player/',
   '/music-player/extension/jquery-3.6.0.min.js',
@@ -38,20 +38,15 @@ self.addEventListener('fetch', (e) => {
   })());
 });
 
-function checkUpdate() {
-    var appCache = window.applicationCache;
-    if (appCache) {
-        appCache.addEventListener('updateready', function(event) {
-            if (appCache.status === appCache.UPDATEREADY) {
-                // 古いキャッシュを削除
-                appCache.swapCache();
-                // 更新を反映するために、ユーザにページをリロードしてもらいます
-                if (window.confirm('新しいバージョンのアプリに更新しますか？')) {
-                    window.location.reload(0);
-                }
-            } 
-        });
-    }
-}
-
-checkUpdate()
+// Activating new version cache
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keyList) => {
+      return Promise.all(keyList.map((key) => {
+        if(key !== cacheName) { return caches.delete(key); }
+      }));
+    }).then(() => {
+      console.log(`${cacheName} now ready to handle fetches.`);
+    })
+  );
+});
