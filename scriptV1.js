@@ -70,6 +70,7 @@ const syncLip = (spectrums) => {
 	$("img#mouth").attr("src", `./image/${imgName}`);
 	prevSpec = totalSpectrum;
 };
+// 逆再生
 const MReverser = (ct, start_time) => { // start_time: 逆再生ver
 	rev_started = false;
 	if (rev_source) rev_source.onended();
@@ -147,7 +148,7 @@ const start = (ct) => {
 		};
 	};
 	// ロードが終わったらやりたいもの
-	document.title = `▷ ${$("li.playing").text()}`;
+	setTitle(`▷ ${$("li.playing").text()}`);
 	$("input#list_track").val(ct +1);
 	// ファイルデータ
 	let MediaTagWaiting = () => setTimeout(() => {
@@ -182,6 +183,17 @@ const start = (ct) => {
 		};
 	});
 };
+const setTitle = (name) => {
+	document.title = name;
+	$("header span").text($("li.playing").text());
+	if ($("header span").width() > $(window).width()) {
+		let looper = () => {
+			$("header span").css("marginLeft", "10px").fadeIn(500).animate({"marginLeft": `-=${$("header span").width() - window.innerWidth +20}`}, 5000, "linear")
+							.fadeOut(500, () => looper());
+		}
+		looper()
+	}
+}
 const PreservesPitch = (onOff) => {
 	if(player.preservesPitch != undefined) {
 		player.preservesPitch = (onOff == undefined) ? player.preservesPitch : onOff;
@@ -263,7 +275,7 @@ $(() => {
 		started = false;
 		waiting = false;
 		paused = false;
-		document.title = "Music Player";
+		setTitle("Music Player");
 		$("button#reset").click();
 		if (rev_started) rev_source.onended(0);
 		player.pause();
@@ -419,7 +431,7 @@ $(() => {
 				paused = !paused;
 				yn = paused;
 				if(!started) break;
-				document.title = `${(paused) ? "| |" : "▷"} ${$("li.playing").text()}`;
+				setTitle(`${(paused) ? "| |" : "▷"} ${$("li.playing").text()}`);
 				if (paused) {
 					if (rev_started) rev_source.onended(0);
 					player.pause();
