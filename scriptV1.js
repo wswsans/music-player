@@ -20,6 +20,7 @@ let duration = 0;
 let cTime = 0;
 let resetting = false;
 let wholeLoop = true;
+let header_ct = 0;
 // リップシンク用の変数達
 let context = null;
 let source = null;
@@ -183,24 +184,23 @@ const start = (ct) => {
 		};
 	});
 };
+const looper = (num) => {
+	if (num == header_ct) {
+		if ($("header span").width() > $(window).width()) {
+			$("header span").animate({"marginLeft": `-=${$("header span").width() - window.innerWidth +20}`}, 5000, "linear").fadeOut(500)
+							.css("marginLeft", "10px").fadeIn(500, () => looper(num));
+		} else {
+			$("header span").stop(true, true).css("marginLeft", "10px").fadeIn(1);
+			setTimeout(() => looper(num), 500);
+		}
+	}
+}
 const setTitle = (name) => {
 	document.title = name;
 	$("header span").text( ($("li.playing").text()) ? $("li.playing").text() : "Music Player" );
+	header_ct++;
+	looper(header_ct);
 }
-const looper = () => {
-	console.log($("header span").width(), $(window).width(), $("header span").width() > $(window).width())
-	if ($("header span").width() > $(window).width()) {
-		console.log("animation")
-		$("header span").css("marginLeft", "10px").fadeIn(500).animate({"marginLeft": `-=${$("header span").width() - window.innerWidth +20}`}, 5000, "linear")
-						.fadeOut(500);
-		// setTimeout(looper, 6000);
-	} else {
-		console.log("def")
-		$("header span").css("marginLeft", "10px").fadeIn(1);
-		// setTimeout(looper, 500);
-	}
-}
-// looper()
 const PreservesPitch = (onOff) => {
 	if(player.preservesPitch != undefined) {
 		player.preservesPitch = (onOff == undefined) ? player.preservesPitch : onOff;
