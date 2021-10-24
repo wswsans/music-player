@@ -237,60 +237,66 @@
 				</tr>
 			</table>
 		</div>
+		<header><span>Music Player</span></header>
+		<section id="selector">
+			<input type="file" accept=".mp3, .wav, .m4a, .flac" id="play_data" multiple>
+			<button id="start">▷</button>
+		</section>
 		<div id="main">
-			<header><span>Music Player</span></header>
-			<section id="selector">
-				<input type="file" accept=".mp3, .wav, .m4a, .flac" id="play_data" multiple>
-				<button id="start">▷</button>
-			</section>
-			<section id="player">
-				<button id="notification" class="on_off">❶</button>
-				<button id="reset">↩︎</button>
-				<button id="pause" class="on_off">| |</button>
-				<!-- 曲 -->
-				<button class="audio back">«</button>
-				<button class="audio next">»</button>
-				<!-- ループ -->
-				<button id="loop" class="">⟲</button>
-				<!-- シャッフル -->
-				<button id="shuffle" class="on_off">⤮</button>
-				<button id="shuffle_btn">⤮→</button>
-				<!-- 速度 -->
-				<input class="speed range" value="1" type="range" max="16" min="0" step="0.05">
-				<button class="speed back similar_btn">←</button>
-				<input class="speed show similar_num" value="1.0" type="number" max="16" min="0" step="0.05">
-				<button class="speed next similar_btn">→</button>
-				<button id="pitch" class="on_off">♩↕︎</button>
-				<!-- 音量 -->
-				<input class="volume range" value="1" type="range" max="1" min="0" step="0.1">
-				<button class="volume back similar_btn">←</button>
-				<input class="volume show similar_num" value="1.0" type="number" max="1" min="0" step="0.1">
-				<button class="volume next similar_btn">→</button>
-				<button id="mute" class="on_off on">)))</button>
-				<br>
-				<!-- 時間 -->
-				<button class="time back similar_btn">←</button>
-				<input class="time show" value="5" type="number" min="0" step="0.1"><span>s</span>
-				<button class="time next similar_btn">→</button>
-				<!-- シークバー(再生時間) -->
-				<button class="on_off" id="MReverse">←→</button>
-				<input class="seek range" value="0" type="range" min="0" step="0.1">
-				<input class="seek show" value="0.0" type="number" min="0" step="0.1"><span id="duration">/ 0.0</span>
-			</section>
-			<table id="lists">
-				<tr>
-					<td valign="top" id="detail">
+			<table id="details">
+				<tr valign="top">
+					<th>
 						<div id="switch">
 							<div class="loader">Loading...</div>
 							<img id="switch_img" class="album_art"> <!-- アルバムアートと顔を行き来する -->
 							<img id="mouth" src='./image/mouth_close.png' alt="">
 						</div>
-						<br>
-						<span id="description">Title: <br>Artist: <br>Album: <br>Year: <br>Comment: <br>Track: <br>Genre: <br></span>
+					</th>
+					<td>
+						<div id="desc_div"><span id="description">Title: <br>Artist: <br>Album: <br>Year: <br>Comment: <br>Track: <br>Genre: <br></span></div>
 						<div id="lyrics_div"><span id="lyrics">Lyrics: <br></span></div>
 					</td>
-					<td valign="top">
-						<span>Track: </span><input id="list_track" value="1" type="number" min="1" step="1">
+				</tr>
+			</table>
+			<input class="seek range" value="0" type="range" min="0" step="0.1">
+			<input class="seek show" value="0.0" type="number" min="0" step="0.1"><span id="duration">/ 0.0</span>
+			<table id="system">
+				<tr valign="top">
+					<th align="left">
+						<!-- 時間 -->
+						<button class="time back similar_btn">←</button>
+						<input class="time show" value="5" type="number" min="0" step="0.1"><span>s</span>
+						<button class="time next similar_btn">→</button>
+						<!-- シークバー(再生時間) -->
+						<button class="on_off" id="MReverse">←→</button>
+						<br>
+						<!-- 速度 -->
+						<input class="speed range" value="1" type="range" max="16" min="0" step="0.05">
+						<button class="speed back similar_btn">←</button>
+						<input class="speed show similar_num" value="1.0" type="number" max="16" min="0" step="0.05">
+						<button class="speed next similar_btn">→</button>
+						<button id="pitch" class="on_off">♩↕︎</button>
+						<br>
+						<!-- 音量 -->
+						<input class="volume range" value="1" type="range" max="1" min="0" step="0.1">
+						<button class="volume back similar_btn">←</button>
+						<input class="volume show similar_num" value="1.0" type="number" max="1" min="0" step="0.1">
+						<button class="volume next similar_btn">→</button>
+						<button id="mute" class="on_off on">)))</button>
+						<br>
+						<button id="notification" class="on_off">❶</button>
+						<button id="reset">↩︎</button>
+						<button id="pause" class="on_off">| |</button>
+						<!-- 曲 -->
+						<button class="audio back">«</button>
+						<button class="audio next">»</button>
+						<!-- ループ -->
+						<button id="loop" class="">⟲</button>
+						<!-- シャッフル -->
+						<button id="shuffle" class="on_off">⤮</button>
+						<button id="shuffle_btn">⤮→</button>
+						<br>
+						<span>Track: </span><input id="list_num" value="1" type="number" min="1" step="1">
 						<span>Search: </span>
 						<select class="search selector">
 							<option value="MName" selected>FileName</option>
@@ -320,8 +326,9 @@
 							<option value="MLyrics">Lyrics</option>
 						</select>
 						<button class="on_off" id="reverse">↑↓</button>
-						<br>
-						<ol id="play_list"></ol>
+					</th>
+					<td>
+						<ol id="music_list"></ol>
 					</td>
 				</tr>
 			</table>

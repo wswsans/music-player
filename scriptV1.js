@@ -185,15 +185,22 @@ const start = (ct) => {
 };
 const setTitle = (name) => {
 	document.title = name;
-	$("header span").text($("li.playing").text());
+	$("header span").text( ($("li.playing").text()) ? $("li.playing").text() : "Music Player" );
+}
+const looper = () => {
+	console.log($("header span").width(), $(window).width(), $("header span").width() > $(window).width())
 	if ($("header span").width() > $(window).width()) {
-		let looper = () => {
-			$("header span").css("marginLeft", "10px").fadeIn(500).animate({"marginLeft": `-=${$("header span").width() - window.innerWidth +20}`}, 5000, "linear")
-							.fadeOut(500, () => looper());
-		}
-		looper()
+		console.log("animation")
+		$("header span").css("marginLeft", "10px").fadeIn(500).animate({"marginLeft": `-=${$("header span").width() - window.innerWidth +20}`}, 5000, "linear")
+						.fadeOut(500);
+		// setTimeout(looper, 6000);
+	} else {
+		console.log("def")
+		$("header span").css("marginLeft", "10px").fadeIn(1);
+		// setTimeout(looper, 500);
 	}
 }
+// looper()
 const PreservesPitch = (onOff) => {
 	if(player.preservesPitch != undefined) {
 		player.preservesPitch = (onOff == undefined) ? player.preservesPitch : onOff;
@@ -210,7 +217,7 @@ const PreservesPitch = (onOff) => {
 };
 // ソート
 const sortPlayList = () => {
-	let tmp = $("ol#play_list").children().get()
+	let tmp = $("ol#music_list").children().get()
 	tmp.sort(function (a, b) {
 		let nameA = $(a).prop( $("select.sort.selector").val() )
 		let nameB = $(b).prop( $("select.sort.selector").val() )
@@ -241,11 +248,12 @@ const sortPlayList = () => {
 		return 0;
 	});
 	// ソート結果
-	$("ol#play_list").html("");
-	tmp.forEach((val, ind) => $(val).appendTo("ol#play_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
+	$("ol#music_list").html("");
+	tmp.forEach((val, ind) => $(val).appendTo("ol#music_list").click(e => { if (count != (parseInt($(val).val()) -1) || player.shuffle) start( (parseInt($(val).val()) -1) ) }) );
 };
 
 $(() => {
+	// ドラッグドロップ
 	$("div#drag_drop").on({
 		dragover: e => {
 			e.stopPropagation();
@@ -284,8 +292,8 @@ $(() => {
 		$("input.range.seek").val(0).trigger("input");
 		$("div.loader").show();
 		$("div#switch img").hide();
-		$("section#player, table#lists").hide();
-		$("ol#play_list").html("");
+		$("div#main").hide();
+		$("ol#music_list").html("");
 		if ($(e.target).val()) {
 			$("button#start").css("cursor", "pointer").show();
 		} else {
@@ -296,9 +304,9 @@ $(() => {
 		Mbuffers = []
 		for (let i = 0; i < data.length; i++) Mbuffers.push(undefined);
 		$("input#list_track").prop("max", data.length);
-		$("ol#play_list").html("");
+		$("ol#music_list").html("");
 		Object.values(data).forEach((val, i) => {
-			$("<li>").appendTo("ol#play_list")
+			$("<li>").appendTo("ol#music_list")
 					.text(val.name.split(".").slice(0, -1).join("."))
 					.prop("MName", val.name.split(".").slice(0, -1).join("."))
 					.val(i + 1)
@@ -348,7 +356,7 @@ $(() => {
 		};
 		paused = false;
 		start(0);
-		$("section#player, table#lists").show();
+		$("div#main").show();
 		$(e.target).hide();
 	});
 	$("button#reset").click(e => {
@@ -545,6 +553,8 @@ $(() => {
 	$("button#reverse").click(sortPlayList);
 	// 時間操作系
 	window.setInterval(() => {
+		// スタート関係なしに動く
+		$("section#selector, div#main").width(window.innerWidth -15);
 		if (!started) return;
 		// 0.1秒の観測
 		if (rev_started && rev_context.currentTime - timeLog >= 0.1) {
@@ -564,10 +574,9 @@ $(() => {
 			MReverser(count, 0);
 			cTime = duration;
 		}
-		$("span#lyrics").parent().height(window.innerHeight -534);
-		$("button.time.next").css("marginRight", 200 -79 -$("input.time.show").width());
-		$("ol#play_list").height(window.innerHeight -165);
-		if (!started) return;
+		// サイズ変更
+		$("button.time.next").css("marginRight", 200 -$("input.time.show").width());
+		$("ol#music_list").height(window.innerHeight -440);
 		if (!player.duration) return;
 		// durationが必要
 		duration = Math.floor(player.duration *10) /10;
@@ -592,7 +601,7 @@ $(() => {
 		}
 	});
 	// 曲リスト
-	$("input#list_track").change(e => {
+	$("input#list_num").change(e => {
 		try {
 			let tmp = $(`li[value=${$(e.target).val()}]`);
 			console.log(tmp)
@@ -614,9 +623,9 @@ $(() => {
 	$("select.search.selector").change(e => $("input.search.text").trigger("input") );
 	$("input.search.text").on("input", e => {
 		if ($(e.target).val() == "") {
-			$("ol#play_list li").show().addClass("showed");
+			$("ol#music_list li").show().addClass("showed");
 		} else {
-			$("ol#play_list li").hide().removeClass("showed").each((ind, val) => {
+			$("ol#music_list li").hide().removeClass("showed").each((ind, val) => {
 				if (($(val).prop($("select.search.selector").val()).toLowerCase()).indexOf($(e.target).val().toLowerCase()) != -1) $(val).show().addClass("showed");
 			})
 		};
@@ -754,7 +763,6 @@ $(() => {
 		};
 	});
 	// 定義し終わったらやるタイプのものたち, data.changeでリセットするならあっちで
-	$("input.speed")[0].min = "0";
 	let landscapeAlert = isJapanese
                        ? "横画面の方が操作しやすいです"
                        : "Are you currently using a smartphone or tablet?\nThis app is recommended to be used in landscape mode.";
