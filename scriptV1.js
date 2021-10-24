@@ -473,16 +473,16 @@ $(() => {
 				yn = !$(e.target).hasClass("btn_on");
 				if (!started) break;
 				if (yn) {
-					if ($("img#switch_img").hasClass("face")) $("img#switch_img").click().prop("already", true);
-					$("button#pitch, .speed, div#switch").css("cursor", "not-allowed").not("div#switch").prop("disabled", true);
+					if ($("img#switch_img").hasClass("face")) $("img#switch_img").prop("faced", true).click();
+					$("button#pitch, .speed, div#switch").css("cursor", "not-allowed").not("div#switch").prop("disabled", true); // 操作禁止
 					player.pause();
 					MReverser(count, duration -cTime);
 				} else {
-					$("button#pitch, .speed, div#switch").css("cursor", "pointer")
+					$("button#pitch, .speed, div#switch").css("cursor", "pointer") // 操作禁止 解除
 											.not("div#switch").prop("disabled", false)
 											.filter("input").css("cursor", "text")
 											.filter(".range").css("cursor", "ew-resize");
-					if ($("img#switch_img").prop("already")) $("img#switch_img").click().prop("already", false);
+					if ($("img#switch_img").prop("faced")) $("img#switch_img").prop("unlock", true).click().prop({unlock: false, faced: false});
 					player.currentTime = cTime;
 					if (!paused) player.play();
 					if (rev_source) rev_source.onended();
@@ -551,50 +551,17 @@ $(() => {
 	// ソート
 	$("select.sort.selector").change(sortPlayList);
 	$("button#reverse").click(sortPlayList);
-	// 時間操作系
-	window.setInterval(() => {
-		// スタート関係なしに動く
-		$("section#selector, div#main").width(window.innerWidth -15);
-		if (!started) return;
-		// 0.1秒の観測
-		if (rev_started && rev_context.currentTime - timeLog >= 0.1) {
-			minus = 0.1;
-			timeLog = Math.floor(rev_context.currentTime *10) /10;
-		} else {
-			minus = 0;
-		};
-		// currentTime
-		if ($("button#MReverse").hasClass("btn_on")) {
-			if (!paused) cTime -= minus;
-		} else {
-			cTime = Math.floor(player.currentTime *10) /10;
-		}
-		// 逆再生 - ループ
-		if ($("button#MReverse").hasClass("btn_on") && cTime <= 0 && player.loop && !paused) {
-			MReverser(count, 0);
-			cTime = duration;
-		}
-		// サイズ変更
-		$("button.time.next").css("marginRight", 200 -$("input.time.show").width());
-		$("ol#music_list").height(window.innerHeight -440);
-		if (!player.duration) return;
-		// durationが必要
-		duration = Math.floor(player.duration *10) /10;
-		$("input.seek").prop("max", duration);
-		$("input.seek.range").val( cTime );
-		$("input.seek.show").width(`${duration *10}`.length *10);
-		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
-		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
-	}, 1);
 	// アルバムアートと顔のスイッチ
 	$("div#switch").click(e => {
-		if ($("button#MReverse").hasClass("btn_on") && !$(e.target).prop("already")) return;
+		if ($("button#MReverse").hasClass("btn_on") && !$(e.target).prop("unlock")) return;
 		$("img#switch_img").toggleClass("album_art").toggleClass("face");
 		if ($("img#switch_img").hasClass("album_art")) {
+			// Art
 			$("img#switch_img").prop("src", $("img#switch_img").prop("artdata"));
 			$("div#switch").css("textAlign", "center");
 			$("img#mouth").hide();
 		} else {
+			// Face
 			$("img#switch_img").prop("src", "./image/face_normal.png");
 			$("div#switch").css("textAlign", "left");
 			$("img#mouth").show();
@@ -631,6 +598,41 @@ $(() => {
 		};
 		if (started && $("button#showed_only").hasClass("btn_on") && !$("li.playing").hasClass("showed") && $("li.showed").length > 0) $("li.showed").get(0).click();
 	}).change(e => $(e.target).blur() );
+	// 時間操作系
+	window.setInterval(() => {
+		// スタート関係なしに動く
+		$("section#selector, div#main").width(window.innerWidth -15);
+		if (!started) return;
+		// 0.1秒の観測
+		if (rev_started && rev_context.currentTime - timeLog >= 0.1) {
+			minus = 0.1;
+			timeLog = Math.floor(rev_context.currentTime *10) /10;
+		} else {
+			minus = 0;
+		};
+		// currentTime
+		if ($("button#MReverse").hasClass("btn_on")) {
+			if (!paused) cTime -= minus;
+		} else {
+			cTime = Math.floor(player.currentTime *10) /10;
+		}
+		// 逆再生 - ループ
+		if ($("button#MReverse").hasClass("btn_on") && cTime <= 0 && player.loop && !paused) {
+			MReverser(count, 0);
+			cTime = duration;
+		}
+		// サイズ変更
+		$("button.time.next").css("marginRight", 200 -$("input.time.show").width());
+		$("ol#music_list").height(window.innerHeight -440);
+		if (!player.duration) return;
+		// durationが必要
+		duration = Math.floor(player.duration *10) /10;
+		$("input.seek").prop("max", duration);
+		$("input.seek.range").val( cTime );
+		$("input.seek.show").width(`${duration *10}`.length *10);
+		if (document.activeElement.className != "seek show") $("input.seek.show").val(`${$("input.seek").val()}`);
+		if ($("span#duration").text() != `/ ${duration}`) $("span#duration").text(`/ ${duration}`);
+	}, 1);
 	// 曲終了
 	$(player).on({
 		play: () => $("button#pause").removeClass("btn_on"),
