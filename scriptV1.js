@@ -44,12 +44,22 @@ if ('serviceWorker' in navigator && window.location.hostname != "localhost") {
 	// サイトのルートでホストされるサービスワーカーを登録します。
 	navigator.serviceWorker.register('/music-player/sw.js', {scope: '/music-player/'}).then(function(registration) {
 		console.log('Success:\n', registration);
+		registration.onupdatefound = function() {
+			console.log('アップデートがあります！');
+			registration.update();
+		}
 	}, /*catch*/ function(error) {
 		console.log('Failed:\n', error);
 	});
 } else {
 	console.log('Service worker is Not supported');
 };
+const CatchReset = () => {
+	navigator.serviceWorker.getRegistration().then(registration => {
+		registration.unregister();
+	})
+}
+
 // Web Audio APIの初期化
 const webAudioSetup = () => {
 	context = new AudioContext();
