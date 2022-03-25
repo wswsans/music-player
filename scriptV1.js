@@ -321,7 +321,6 @@ $(() => {
 		};
 		// リストにまとめる
 		data = $(e.target).prop("files");
-		console.log(data);
 		switch(data[0].type){
 			case "audio/mpegurl":
 			case "audio/x-mpegurl":
