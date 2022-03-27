@@ -35,6 +35,9 @@ let Mbuffers = [];
 let rev_started = false;
 let timeLog = 0;
 let minus = 0;
+// ストリーミング
+let isStreaming = false;
+let urls = null;
 
 player.preload = "metadata";
 
@@ -132,7 +135,11 @@ const start = (ct) => {
 		$("div#switch img").show();
 		if ($("img#switch_img").hasClass("album_art")) $("img#mouth").hide();
 	}
-	if ($("li.playing").prop("MData")) {
+	if (isStreaming) {
+		player.crossOrigin = 'anonymous';
+		player.src = urls[ct];
+		tmp();
+	} else if ($("li.playing").prop("MData")) {
 		player.src = $("li.playing").prop("MData");
 		tmp();
 	} else {
@@ -147,7 +154,7 @@ const start = (ct) => {
 	// 逆再生用
 	$("button#MReverse").addClass("btn_on").click();
 	if (!rev_context) rev_context = new AudioContext();
-	if (!Mbuffers[ct]) {
+	if (!isStreaming && !Mbuffers[ct]) {
 		const fReader = new FileReader();
 		fReader.readAsArrayBuffer(data[ct]);
 		fReader.onloadend = (event) => {
@@ -293,6 +300,9 @@ $(() => {
 		started = false;
 		waiting = false;
 		paused = false;
+		isStreaming = false;
+		urls = null;
+		player.removeAttribute('crossOrigin');
 		setTitle("Music Player");
 		$("button#reset").click();
 		if (rev_started) rev_source.onended(0);
@@ -311,6 +321,49 @@ $(() => {
 		};
 		// リストにまとめる
 		data = $(e.target).prop("files");
+		switch(data[0].type){
+			case "audio/mpegurl":
+			case "audio/x-mpegurl":
+			case "application/x-mpegurl":
+				let reader = new FileReader();
+				reader.readAsText(data[0]);
+				reader.onload = function (e){
+					isStreaming = true;
+					urls = reader.result.replace(/\r/g, '').split(/\n/g)
+										.filter((val) => {return val.length > 0 && val[0] != '#';});  // 空行とコメント(#から始まる)を削除
+					let urlsLength = urls.length;
+					urls = urls.filter((val) => {return val.startsWith("http");});
+					if (urlsLength != urls.length){
+						let urlSkipAlert = isJapanese
+										  ? "httpおよびhttpsで始まるURLのみに対応しています。\nそれ以外のURLはスキップされます。" 
+										  : "Only URLs starting with 'http' or 'https' are supported.\nThe others are skipped.";
+						alert(urlSkipAlert);
+						urlsLength = urls.length;
+					}
+					if(urlsLength < 1){
+						let noUrlAlert = isJapanese
+									   ? "プレイリストにURLがありません。"
+									   : "No appropriate URL in the playlist.";
+						alert(noUrlAlert);
+						$("button#start").css("cursor", "not-allowed").hide();
+						return;
+					}
+					$("input#list_track").prop("max", urlsLength);
+					$("ol#music_list").html("");
+					urls.forEach((val, i) => {
+						$("<li>").appendTo("ol#music_list")
+								 .text(val)
+								 .prop("MName", val)
+								 .val(i + 1)
+								 .addClass("showed")
+								 .click(e => { if (count != i || player.shuffle) start(i) });
+						$(`li[value=${i +1}]`).prop("artdata", "./image/no_image.png");
+						$(`li[value=${i +1}]`).prop({MTitle: "", MArtist: "", MAlbum: "", MYear: "", MComment: "", MTrack: "", MGenre: "", MLyrics: "", Ready: true, MData: undefined});
+					});
+				}
+				return;
+			default:
+		}
 		Mbuffers = []
 		for (let i = 0; i < data.length; i++) Mbuffers.push(undefined);
 		$("input#list_track").prop("max", data.length);
@@ -366,6 +419,12 @@ $(() => {
 		};
 		paused = false;
 		start(0);
+		if(isStreaming){
+			// ストリーミング再生では一部機能を隠蔽
+			$('.local-only').hide();
+		} else {
+			$('.local-only').show();
+		}
 		$("div#main").show();
 		$(e.target).hide();
 	});
