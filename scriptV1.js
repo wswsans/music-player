@@ -185,21 +185,23 @@ const start = (ct) => {
 		} else MediaTagWaiting();
 	}, 1);
 	MediaTagWaiting();
-	Notification.requestPermission().then((result) => {
-		if (result === 'granted' && $("button#notification").hasClass("btn_on") && !document.hasFocus()) {
-			setTimeout(() => {
-				Push.create($("li.playing").text(), {
-					body: "Play",
-					icon: $("img#switch_img").prop("artdata"),
-					timeout: 5000,
-					onClick: function () {
-						window.focus();
-						this.close();
-					}
-				})
-			}, 50);
-		};
-	});
+	if('Notification' in window){
+		Notification.requestPermission().then((result) => {
+			if (result === 'granted' && $("button#notification").hasClass("btn_on") && !document.hasFocus()) {
+				setTimeout(() => {
+					Push.create($("li.playing").text(), {
+						body: "Play",
+						icon: $("img#switch_img").prop("artdata"),
+						timeout: 5000,
+						onClick: function () {
+							window.focus();
+							this.close();
+						}
+					})
+				}, 50);
+			};
+		});
+	}
 };
 const looper = (num) => {
 	if (num == header_ct) {
