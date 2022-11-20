@@ -628,12 +628,12 @@ $(() => {
 		$("img#switch_img").toggleClass("album_art").toggleClass("face");
 		if ($("img#switch_img").hasClass("album_art")) {
 			// Art
-			$("img#switch_img").prop("src", $("img#switch_img").prop("artdata"));
+			$("img#switch_img").prop("src", $("img#switch_img").prop("artdata")).css("transform", `translateY(${(300-$("img#switch_img").height()) / (2*$("img#switch_img").height()) *100}%)`);
 			$("div#switch").css("textAlign", "center");
 			$("img#mouth").hide();
 		} else {
 			// Face
-			$("img#switch_img").prop("src", "./image/face_normal.png");
+			$("img#switch_img").prop("src", "./image/face_normal.png").css("transform", "translateY(0%)");
 			$("div#switch").css("textAlign", "left");
 			$("img#mouth").show();
 		}
