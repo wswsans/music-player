@@ -110,7 +110,7 @@ span {
 	cursor: default;
 }
 img {
-	height: 300px;
+	width: 300px;
 }
 input[type="range"] {
 	cursor: ew-resize;
